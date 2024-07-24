@@ -4,6 +4,10 @@
     include_once "db_conn.php";
     include_once "utilities/util.php";
 
+    function updateReportAction($comment, $reportId, $conn){
+        $queryString = "UPDATE report_action SET comment = '".$comment." WHERE id='".$_SESSION['ID']."' AND report_id = '".$reportId."' ";
+        $conn->query($queryString);
+    }
 
     if (isset($_GET['item_id'])){
         $queryString = "SELECT * FROM report WHERE ID=".$_GET['item_id']."";
@@ -12,13 +16,15 @@
 
         $item = mysqli_fetch_assoc($result);
 
+        
+
         $queryString = "SELECT * FROM user WHERE ID=".$_SESSION['ID'];
 
         $result = $conn->query($queryString);
 
         $user_reports_to = mysqli_fetch_assoc($result)['reports_to'];
 
-        $queryString = "SELECT r.action_at as action_at, r.comment as comment, u.username as username, u.role as role, u.id as id FROM report_action r, user u where r.report_id=".$_GET['item_id']." and r.user = u.id ORDER BY action_at DESC";
+        $queryString = "SELECT r.action_at as action_at, action_last_update, r.comment as comment, u.username as username, u.role as role, u.id as id FROM report_action r, user u where r.report_id=".$_GET['item_id']." and r.user = u.id ORDER BY action_at DESC";
 
         $result = $conn->query($queryString);
 
@@ -95,10 +101,24 @@
             <div class="d-flex flex-nowrap">
                 <?php
                     if(($_SESSION['ROLE'] == "supervisor" || $_SESSION['ROLE'] == "manager" || $_SESSION['ROLE'] == "gmanager" || $_SESSION['ROLE'] == "director") 
-                    && ($item['status'] >= 0 && $item['status'] != 3 && $item['status'] < fetchNumericRole($_SESSION['ROLE'])) && $item['report_by'] != $_SESSION['ID']) { 
+                    && ($item['status'] >= 0 && $item['report_by'] != $_SESSION['ID'])) { 
                 ?>  
-                    <div>
-                        <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#modal-approve-report">Tanggapi</button>
+                    <div> 
+                        <?php
+                           if($_SESSION['ROLE'] == "manager" && $item['status_m'] == 1){ ?>
+                                <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#modal-approve-report" disabled>Tanggapi</button>
+                           <?php }  
+                           else if($_SESSION['ROLE'] == "gmanager" && $item['status_gm'] == 2){ ?>
+                                <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#modal-approve-report" disabled>Tanggapi</button>
+                           <?php }
+                           else if($_SESSION['ROLE'] == "supervisor" && $item['status_spv'] == 4){ ?>
+                                <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#modal-approve-report" disabled>Tanggapi</button>
+                           <?php }
+                           else { ?>
+                            <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#modal-approve-report">Tanggapi</button>
+                            <?php } ?> 
+                        
+                        
                         <div class="modal fade" role="dialog" tabindex="-1" id="modal-approve-report">
                             <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down" role="document">
                                 <div class="modal-content">
@@ -123,6 +143,34 @@
                                                 </div>
                                                 <div class="ms-2 w-50">
                                                     <button type="submit" name="approve" class="btn btn-outline-primary w-100">Approve</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal fade" role="dialog" tabindex="-1" id="modal-edit-comment">
+                            <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Edit Tanggapan</h4>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form action="comment.php" method="POST" enctype="multipart/form-data">
+                                        <div class="modal-body">
+                                            <textarea name="edit-comment" class="form-control" id="edit-comment" style="height: 150px;" required></textarea>
+                                            <?php if(isset($_SESSION['ERROR']['edit-comment'])) { ?>
+                                                <div class="alert alert-danger mb-0 py-2 fade show" role="alert">
+                                                    <?= $_SESSION['ERROR']['edit-comment'] ?>
+                                                </div>
+                                            <?php } ?>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <input id="input-item-id" type="hidden" name="item_id" value="<?= $_GET['item_id']; ?>">
+                                            <div class="d-flex flex-fill">
+                                                <div class="ms-2 w-50">
+                                                    <button type="submit" name="comment" class="btn btn-outline-primary w-100">Selesai</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -254,7 +302,7 @@
                     </div>
                 </div>
                 <?php 
-                    if (count($history) > 0){
+                    if (count($history) > 0 || $_SESSION['role']=="sales"){
                 ?>
                     <div class="col-lg-4">
                         <div class="card">
@@ -263,19 +311,30 @@
                                 
                                 <?php 
                                     foreach ($history as $user) {
-                                        if (fetchNumericRole($user['role']) <= fetchNumericRole($_SESSION['ROLE']) || (fetchNumericRole($user['role'])-1 === fetchNumericRole($_SESSION['ROLE'])) || ($user['id'] == $user_reports_to)){
+                                        if (fetchNumericRole($user['role']) <= fetchNumericRole($_SESSION['ROLE']) || (fetchNumericRole($user['role'])-1 === fetchNumericRole($_SESSION['ROLE'])) || (fetchNumericRole($user['role'])-2 === fetchNumericRole($_SESSION['ROLE'])) || (fetchNumericRole($user['role']) === fetchNumericRole($_SESSION['ROLE'])) || $user['id'] === $user_reports_to){
                                 ?>
                                     <hr>
                                     <h4 class="fw-bold"><?= parseRoles($user['role']) . ' - ' . $user['username']; ?></h4>
                                     <h5>Tanggapan</h5>
                                     <textarea class="form-control" style="resize: none;" readonly><?= $user['comment']?></textarea>
-                                    <p class="mb-0 fw-light text-end text-body-secondary"><?= $user['action_at']?></p>
+                                    <?php 
+                                        if($_SESSION['USERNAME'] == $user['username']){ ?>
+                                            <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#modal-edit-comment" >Edit Tanggapan</button>
+                                       <?php }
+                                       
+                                    ?> 
+                                    
+                                     <p class="mb-0 fw-light text-end text-body-secondary">Terakhir di edit 
+                                        <?= $user['action_last_update']?>
+                                    </p>
+                                    <p class="mb-0 fw-light text-end text-body-secondary">Riwayat <?= $user['action_at']?></p>
                                 <?php    
                                         }
                                     }
                                 ?>
                             </div>
                         </div>
+                        
                     </div>
                 <?php
                     }

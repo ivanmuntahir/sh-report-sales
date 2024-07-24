@@ -11,7 +11,7 @@
     $password = $_POST['input-password'];
     $emp_id = isset($_POST['input-emp-id']) ? $_POST['input-emp-id'] : '';
     $reports_to = isset($_POST['input-reports-to']) ? $_POST['input-reports-to'] : '';
-    $reports_to_manager = isset($_POST['input-reports-to-lead-1']) ? $_POST['input-reports-to-lead-1'] : '';
+    //$reports_to_manager = isset($_POST['input-reports-to-lead-1']) ? $_POST['input-reports-to-lead-1'] : '';
     $role = $_POST['input-role'];
 
     $username = sanitizeInput($username);

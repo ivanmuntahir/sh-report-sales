@@ -7,7 +7,6 @@
 
     $queryString = "SELECT * FROM user";
     
-
     $result = $conn->query($queryString);
     $uuuser = "SELECT * FROM user WHERE id ='".$_SESSION['ID']."'";
     $report = $conn->query($uuuser);
@@ -16,25 +15,52 @@
         $result_report = $conn->query($report_user);
         $reports_to = mysqli_fetch_assoc($result_report);
 
-        $report_supervisor = "SELECT * FROM user WHERE id='".$user_login['reports_to_lead_1']."'";
+        $report_supervisor = "SELECT * FROM user WHERE role='supervisor'";
         $result_s = $conn->query($report_supervisor);
         $reports_to_spv = mysqli_fetch_assoc($result_s);
 
-        $report_manager = "SELECT * FROM user WHERE id='".$user_login['reports_to_lead_2']."'";
+        $report_manager = "SELECT * FROM user WHERE role='manager'";
         $result_m = $conn->query($report_manager);
         $reports_to_manager = mysqli_fetch_assoc($result_m);
 
-        $report_gmanager = "SELECT * FROM user WHERE id='".$user_login['reports_to_lead_3']."'";
+        $report_gmanager = "SELECT * FROM user WHERE role='gmanager'";
         $result_gm = $conn->query($report_gmanager);
         $reports_to_gmanager = mysqli_fetch_assoc($result_gm);
+
+        $report_director = "SELECT * FROM user WHERE role='director'";
+        $result_dr = $conn->query($report_director);
+        $reports_to_director = mysqli_fetch_assoc($result_dr);
+
+        $report_director_2 = "SELECT * FROM user WHERE role='director'";
+        $result_dr_2 = $conn->query($report_director_2);
+        $reports_to_director_2 = mysqli_fetch_assoc($result_dr_2);
     
     
     
     $users = [];
-    while($temp = mysqli_fetch_assoc($result)){
-        array_push($users, $temp);
+    $spv = [];
+    $manager = [];
+    $gmanager = [];
+    $director = [];
+    $director_2 = [];
+
+
+    while($temp = mysqli_fetch_assoc($result_s)){
+        array_push($spv, $temp);
     }   
-    //var_dump($reports_to_manager);die();
+    while($temp = mysqli_fetch_assoc($result_m)){
+        array_push($manager, $temp);
+    }  
+    while($temp = mysqli_fetch_assoc($result_gm)){
+        array_push($gmanager, $temp);
+    } 
+    while($temp = mysqli_fetch_assoc($result_dr)){
+        array_push($director, $temp);
+    } 
+    while($temp = mysqli_fetch_assoc($result_dr_2)){
+        array_push($director_2, $temp);
+    } 
+    
     
     
     if(isset($_GET['item_id'])){
@@ -99,16 +125,39 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="width: 10px; height: 10px;"></button>
             </div>
         </div>
-    <?php } unsetAlert();
-     ?>
-    <section id="section-header">
+    <?php } unsetAlert(); ?>
+     <section id="section-header">
+        <nav class="navbar bg-light fixed-top shadow-sm">
+  <div class="container-fluid">
+    <h5 class="me-3 mb-0">Masuk sebagai, <?= $_SESSION['USERNAME'] ?> !</h5>
+    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="offcanvas offcanvas-end " tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+          <li class="nav-item">
+            <button id="btn-create-report" class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#modal-create-report">Buat Laporan</button>  
+          </li>
+          <li class="nav-item py-4">
+            <form method="GET" action="logout.php">
+                <button type="submit" class="btn btn-danger">Logout</button>
+          </form>
+          </li>
+          
+        </ul>
+        
+      </div>
+    </div>
+  </div>
+</nav>
         <nav class="navbar navbar-expand-lg bg-body-tertiary p-3 d-flex justify-content-between">
-            <button id="btn-create-report" class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#modal-create-report">Buat Laporan</button>
-            <form method="GET" action="manage_atasan.php" class="mb-0">
-                    <button type="submit" class="btn btn-danger">Edit Atasan</button>
-                </form>
-            <div class="modal fade" role="dialog" tabindex="-1" id="modal-create-report">
-                <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down" role="document">
+          <div class="modal fade" role="dialog" tabindex="-1" id="modal-create-report">
+                <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h4 class="modal-title">Buat Laporan</h4>
@@ -193,9 +242,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <?php 
-                                        
-                                        if(isset($_SESSION['ERROR']['input-proyek'])) { ?>
+                                        <?php if(isset($_SESSION['ERROR']['input-proyek'])) { ?>
                                             <div class="alert alert-danger mb-0 py-2 fade show" role="alert">
                                                 <?= $_SESSION['ERROR']['input-proyek'] ?>
                                             </div>
@@ -232,7 +279,7 @@
                                         <label for="input-prospect" class="form-label mb-0 fw-bold">Nilai Prospek</label>
                                         <div class="form-control d-flex align-items-center justify-content-between">
                                             <p class="mb-0 me-3">Rp</p>
-                                            <input type="text" class="input-number input-thousand-separator w-100" id="input-prospect" name="input-prospect" required>
+                                            <input type="text" class="input-number input-thousand-separator w-100" id="input-prospect" required>
                                             <?php if(isset($_SESSION['ERROR']['input-prospect'])) { ?>
                                                 <div class="alert alert-danger mb-0 py-2 fade show" role="alert">
                                                     <?= $_SESSION['ERROR']['input-prospect'] ?>
@@ -271,7 +318,7 @@
                                             </div>
                                         <?php } ?>
                                     </div>
-                                    <div class="col-12 mb-3">
+                                    <div class="col-sm-12 mb-3">
                                         <label for="input-note" class="form-label mb-0 fw-bold">Keterangan</label>
                                         <textarea name="input-note" class="form-control" id="input-note"></textarea>
                                         <?php if(isset($_SESSION['ERROR']['input-note'])) { ?>
@@ -280,7 +327,7 @@
                                             </div>
                                         <?php } ?>
                                     </div>
-                                    <div class="col-12 mb-3">
+                                    <div class="col-sm-12 mb-3">
                                         <label for="input-sales-note" class="form-label mb-0 fw-bold">Komentar untuk Management</label>
                                         <textarea name="input-sales-note" class="form-control" id="input-sales-note"></textarea>
                                         <?php if(isset($_SESSION['ERROR']['input-sales-note'])) { ?>
@@ -289,53 +336,142 @@
                                             </div>
                                         <?php } ?>
                                     </div>
-                                    <div class="col-12 mb-3">
+                                    <div class="col-sm-9 mb-3">
                                         <label for="input-attachment" class="form-label mb-0 fw-bold">Lampiran</label>
                                         <input type="file" class="form-control" id="input-attachment" name="input-attachment[]" accept="image/png, image/jpg, image/jpeg, image/jfif" multiple>
                                         <?php if(isset($_SESSION['ERROR']['input-attachment'])) { ?>
                                             <div class="alert alert-danger mb-0 py-2 fade show" role="alert">
                                                 <?= $_SESSION['ERROR']['input-attachment'] ?>
                                             </div>
-                                        <?php } 
-                                        ?>
+                                        <?php } ?>
                                     </div>
-                                
-                                <div class="col-12 col-md-5">
-                                
-                                
-                            </div>
-                            <div class="col-12 col-md-7">
-                                
-                                
-
-                                <?php if(isset($_SESSION['ERROR']['input-reports-to'])) { ?>
-                                    <div class="alert alert-danger mb-0 py-2 fade show" role="alert">
-                                        <?= $_SESSION['ERROR']['input-reports-to'] ?>
+                                     <div class="col-sm-5 mb-3">
+                                        <label for="select-lapor-ke-role" class="form-label mb-0 fw-bold">Jabatan Atasan</label>
+                                                <select class="form-select" id="select-lapor-ke-role" disabled>
+                                                    <option value="supervisor" <?= $reports_to_spv['role'] == 'supervisor' ? 'selected' : ''; ?>>Supervisor</option>
+                                                 </select>
+                                            <label for="2-select-lapor-ke-role" class="form-label mb-0 fw-bold">Jabatan Atasan</label>
+                                                <select class="form-select" id="2-select-lapor-ke-role" disabled>
+                                                    <option value="manager" <?= $reports_to_manager['role'] == 'manager' ? 'selected' : ''; ?>>Manager</option>
+                                                </select>
+                                            <label for="3-select-lapor-ke-role" class="form-label mb-0 fw-bold">Jabatan Atasan</label>
+                                                <select class="form-select" id="3-select-lapor-ke-role" disabled>
+                                                    <option value="gmanager" <?= $reports_to_gmanager['role'] == 'gmanager' ? 'selected' : ''; ?>>General Manager</option>
+                                                </select>
+                                            <label for="4-select-lapor-ke-role" class="form-label mb-0 fw-bold">Jabatan Atasan</label>
+                                                <select class="form-select" id="4-select-lapor-ke-role" disabled>
+                                                   <option value="director" <?= $reports_to_director['role'] == 'director' ? 'selected' : ''; ?>>Director 1</option>
+                                                </select>
+                                            <label for="4-select-lapor-ke-role" class="form-label mb-0 fw-bold">Jabatan Atasan</label>
+                                                <select class="form-select" id="4-select-lapor-ke-role" disabled>
+                                                   <option value="director" <?= $reports_to_director['role'] == 'director' ? 'selected' : ''; ?>>Director 2</option>
+                                                </select>
                                     </div>
-                                <?php } ?>
-                            </div>
-                            
-                            
-                            </div>
+                                    <div class="col-sm-6 mb-3">
+                                        <label for="select-lapor-ke" class="form-label mb-0 fw-bold">Nama</label>
+                                                <select name="input-reports-to-lead-1" class="form-select" id="select-lapor-ke">
+                                                    
+                                                    <?php if($user['reports_to_lead_1'] == 0) { ?>
+                                                        <option value="<?= $reports_to_spv['id']; ?>" class="<?="option-lapor-ke role-" . $reports_to_spv['role'];?>" style="display: none;" selected><?= $reports_to_spv['username']; ?></option>
+                                                        <option value="" hidden disabled>-</option>
+                                                        <?php foreach($spv as $temp) { ?>
+                                                            <?php if($reports_to_spv['id'] == $temp['reports_to_lead_1']) { ?>
+                                                                <option value="<?= $reports_to_spv['id']; ?>" class="<?="option-lapor-ke role-" . $reports_to_spv['role'];?>" style="display: none;" selected><?= $reports_to_spv['username']; ?></option>
+                                                                <?php } else { ?>
+                                                                <option value="<?= $temp['id']; ?>" class="<?="option-lapor-ke role-" . $temp['role'];?>" style="display: none;"><?= $temp['username']; ?></option>
+                                                                <option value="" hidden selected disabled>-</option>
+                                                            <?php } ?>
+                                                        <?php } ?>
+                                                        
+                                                    <?php } else{ ?>
+                                                        <option value="" hidden selected disabled>-</option>
+                                                    <?php } ?>
+                                                </select>
+                                                <label for="2-select-lapor-ke" class="form-label mb-0 fw-bold">Nama</label>
+                                                <select name="input-reports-to-lead-2" class="form-select" id="2-select-lapor-ke">
+                                                    <?php if( $user['reports_to_lead_2'] == 0) { ?>
+                                                        <option value="" hidden disabled>-</option>
+                                                        <?php foreach($manager as $temp) { ?>
+                                                            <?php if($reports_to_manager['id'] == $temp['reports_to_lead_2']) { ?>
+                                                                <option value="<?= $reports_to_manager['id']; ?>" class="<?="2-option-lapor-ke role-" . $reports_to_manager['role'];?>" style="display: none;" selected><?= $reports_to_manager['username']; ?></option>
+                                                                <?php } else { ?>
+                                                                <option value="<?= $temp['id']; ?>" class="<?="2-option-lapor-ke role-" . $temp['role'];?>" style="display: none;"><?= $temp['username']; ?></option>
+                                                                <option value="" hidden selected disabled>-</option>
+                                                            <?php } ?>
+                                                        <?php } ?>
+                                                        
+                                                    <?php } else{ ?>
+                                                        <option value="" hidden selected disabled>-</option>
+                                                    <?php } ?>
+                                                </select>
+                                                <label for="3-select-lapor-ke" class="form-label mb-0 fw-bold">Nama</label>
+                                                <select name="input-reports-to-lead-3" class="form-select" id="3-select-lapor-ke">
+                                                    <?php if( $user['reports_to_lead_3'] == 0) { ?>
+                                                        <option value="" hidden disabled>-</option>
+                                                        <?php foreach($gmanager as $temp) { ?>
+                                                            <?php if($reports_to_gmanager['id'] == $temp['reports_to_lead_3']) { ?>
+                                                                <option value="<?= $reports_to_gmanager['id']; ?>" class="<?="3-option-lapor-ke role-" . $reports_to_gmanager['role'];?>" style="display: none;" selected><?= $reports_to_gmanager['username']; ?></option>
+                                                                <?php } else { ?>
+                                                                <option value="<?= $temp['id']; ?>" class="<?="3-option-lapor-ke role-" . $temp['role'];?>" style="display: none;"><?= $temp['username']; ?></option>
+                                                                <option value="" hidden selected disabled>-</option>
+                                                            <?php } ?>
+                                                        <?php } ?>
+                                                        
+                                                    <?php } else{ ?>
+                                                        <option value="" hidden selected disabled>-</option>
+                                                    <?php } ?>
+                                                </select>
+                                                <label for="4-select-lapor-ke" class="form-label mb-0 fw-bold">Nama</label>
+                                                <select name="input-reports-to-lead-4" class="form-select" id="4-select-lapor-ke">
+                                                    <?php if( $user['reports_to_lead_4'] == 0) { ?>
+                                                        <option value="" hidden disabled>-</option>
+                                                        <?php foreach($director as $temp) { ?>
+                                                            <?php if($reports_to_director['id'] == $temp['reports_to_lead_4']) { ?>
+                                                                <option value="<?= $reports_to_director['id']; ?>" class="<?="4-option-lapor-ke role-" . $reports_to_director['role'];?>" style="display: none;" selected><?= $reports_to_director['username']; ?></option>
+                                                                <?php } else { ?>
+                                                                <option value="<?= $temp['id']; ?>" class="<?="4-option-lapor-ke role-" . $temp['role'];?>" style="display: none;"><?= $temp['username']; ?></option>
+                                                                <option value="" hidden selected disabled>-</option>
+                                                            <?php } ?>
+                                                        <?php } ?>
+                                                        
+                                                    <?php } else{ ?>
+                                                        <option value="" hidden selected disabled>-</option>
+                                                    <?php } ?>
+                                                </select>
+                                                <label for="5-select-lapor-ke" class="form-label mb-0 fw-bold">Nama</label>
+                                                <select name="input-reports-to-lead-5" class="form-select" id="5-select-lapor-ke">
+                                                    <?php if( $user['reports_to_lead_4'] == 0) { ?>
+                                                        <option value="" hidden disabled>-</option>
+                                                        <?php foreach($director_2 as $temp) { ?>
+                                                            <?php if($reports_to_director['id'] == $temp['reports_to_lead_4']) { ?>
+                                                                <option value="<?= $reports_to_director['id']; ?>" class="<?="5-option-lapor-ke role-" . $reports_to_director['role'];?>" style="display: none;" selected><?= $reports_to_director['username']; ?></option>
+                                                                <?php } else { ?>
+                                                                <option value="<?= $temp['id']; ?>" class="<?="4-option-lapor-ke role-" . $temp['role'];?>" style="display: none;"><?= $temp['username']; ?></option>
+                                                                <option value="" hidden selected disabled>-</option>
+                                                            <?php } ?>
+                                                        <?php } ?>
+                                                        
+                                                    <?php } else{ ?>
+                                                        <option value="" hidden selected disabled>-</option>
+                                                    <?php } ?>
+                                                </select>
+                                    </div>
+                                </div>
                             </div>
                             <input type="hidden" name="input-latitude" id="input-latitude">
                             <input type="hidden" name="input-longitude" id="input-longitude">
                             <input type="hidden" name="input-project" id="input-project">
                             <div class="modal-footer text-end">
-                                <button type="button" class="btn btn-primary" id="btn-save-report">Submit</button>
+                                <button type="submit" class="btn btn-primary" id="btn-save-report">Submit</button>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
-            <div class="d-flex align-items-center">
-                <h5 class="me-3 mb-0">Masuk sebagai, <?= $_SESSION['USERNAME'] ?> !</h5>
-                <form method="GET" action="logout.php" class="mb-0">
-                    <button type="submit" class="btn btn-danger">Keluar</button>
-                </form>
-            </div>
         </nav>
     </section>
+        
+        
     <section id="section-content">
         <div class="container">
 
@@ -348,7 +484,8 @@
                 <div role="tabpanel" class="tab-pane active" id="tab-unapproved-report">
                     <div class="card" style="border-top-left-radius: 0;">
                         <div class="card-body">
-                            <table class="table table-hover" id="table-unapproved-report">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="table-unapproved-report">
                                 <thead>
                                     <tr>
                                         <th>ID Laporan</th>
@@ -389,13 +526,16 @@
                                 ?>
                                 </tbody>
                             </table>
+                            </div>
+                            
                         </div>
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="tab-evaluated-report">
                     <div class="card">
                         <div class="card-body">
-                            <table class="table table-hover" id="table-evaluated-report">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="table-evaluated-report">
                                 <thead>
                                     <tr>
                                         <th>ID Laporan</th>
@@ -430,6 +570,7 @@
                                 ?>
                                 </tbody>
                             </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -460,6 +601,7 @@
 
         $('#2-select-lapor-ke-role').on('change', function() {
             $('#2-select-lapor-ke').val('');
+            $('#2-select-lapor-ke').empty();
             $('.2-option-lapor-ke').hide();
             let role = $('#2-select-lapor-ke-role').val();
             $('.role-' + role).show();
@@ -475,6 +617,18 @@
             $('#3-select-lapor-ke').val('');
             $('.3-option-lapor-ke').hide();
             let role = $('#3-select-lapor-ke-role').val();
+            $('.role-' + role).show();
+        });
+    });
+    $(document).ready(function() {
+        if ($('#4-select-lapor-ke').val() != '') {
+            $('.role-' + $('#4-select-lapor-ke-role').val()).show();
+        }
+
+        $('#4-select-lapor-ke-role').on('change', function() {
+            $('#4-select-lapor-ke').val('');
+            $('.4-option-lapor-ke').hide();
+            let role = $('#4-select-lapor-ke-role').val();
             $('.role-' + role).show();
         });
     });

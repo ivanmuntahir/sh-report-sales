@@ -14,19 +14,6 @@
         array_push($users, $temp);
     }   
 
-    // if(isset($_GET['item_id'])){
-    //     $queryString = "SELECT U.id as id, U.emp_id as emp_id, U.username as username, U.password as password, U.role as role, U.reports_to as reports_to, REP.role as reports_to_role FROM user U, user REP WHERE U.ID=".$_GET['item_id']." AND U.REPORTS_TO = REP.id";
-    //     $result = $conn->query($queryString);
-
-    //     $user = mysqli_fetch_assoc($result);
-        
-    //     if ($user == null){
-    //         $queryString = "SELECT * from user WHERE ID=".$_GET['item_id']."";
-    //         $result = $conn->query($queryString);
-    //         $user = mysqli_fetch_assoc($result);
-    //     }
-    // }
-
     $result = $conn->query($queryString);
     $uuuser = "SELECT * FROM user WHERE id ='".$_SESSION['ID']."'";
     $report = $conn->query($uuuser);

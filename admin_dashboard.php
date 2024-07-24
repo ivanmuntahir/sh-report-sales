@@ -102,21 +102,41 @@
 </head>
 <body class="bg-main">
     <?php if(isset($_SESSION['ALERT'])) { ?>
-        <div class="position-absolute end-0 me-3" style="margin-top: 84px;">
+        <div class="position-absolute end-0 " style="margin-top: 60px;">
             <div class="alert alert-<?= $_SESSION['ALERT']['TYPE'] ?> mb-0 p-2 fade show" role="alert">
                 <?= $_SESSION['ALERT']['MESSAGE'] ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="width: 10px; height: 10px;"></button>
             </div>
         </div>
     <?php } unsetAlert(); ?>
-    <section id="section-header">
-        <nav class="navbar navbar-expand-lg bg-body-tertiary p-3 d-flex justify-content-between">
-            <button id="btn-create-user" class="btn btn-primary" type="button">Buat User</button>
-            <form method="GET" action="logout.php">
-                <button type="submit" class="btn btn-danger">Logout</button>
-            </form>
+    <section id="section-header"> 
+        <nav class="navbar bg-light fixed-top shadow">
+            <div class="container-fluid">
+                <h5 class="me-3 mb-0">Masuk sebagai, <?= $_SESSION['USERNAME'] ?> !</h5>
+                <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
+                <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menu</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                        <li class="nav-item">
+                            <button id="btn-create-user" class="btn btn-primary" type="button">Buat User</button>  
+                        </li>
+                        <li class="nav-item py-4">
+                            <form method="GET" action="logout.php">
+                                <button type="submit" class="btn btn-danger">Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+        
+            </div>
+            </div>
+        </div>
         </nav>
-    </section>
     <section id="section-content">
         <div class="container">
 
@@ -132,7 +152,8 @@
                         <div class="card-body">
                             <h2>Master Akun</h2>
                             <hr>
-                            <table class="table table-hover" id="table-user">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="table-user">
                                 <thead>
                                     <tr>
                                         <th>ID Akun</th>
@@ -203,7 +224,8 @@
                     </div>
                 </div>
             </div>
-            <div class="tab-content">
+            <div class="table-responsive">
+                <div class="tab-content">
                 <div role="tabpanel" class="tab-pane" id="tab-master-report">
                     <div class="card">
                         <div class="card-body">
@@ -216,13 +238,14 @@
                                         <th>Tanggal Upload</th>
                                         <th>Pelapor</th>
                                         <th>Instansi</th>
+                                        <th>Proyek</th>
                                         <th>Status</th>
                                         <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                 <?php
-                                    $queryString = "SELECT r.id as 'id', r.location as 'location', r.upload_at as 'upload_at', u.emp_id as 'emp_id', r.status as 'status', u.username as 'username' FROM report r, user u WHERE r.report_by = u.id";
+                                    $queryString = "SELECT r.id as 'id', r.location as 'location', r.upload_at as 'upload_at', r.project as 'project', u.emp_id as 'emp_id', r.status as 'status', u.username as 'username' FROM report r, user u WHERE r.report_by = u.id";
 
                                     try{
                                         $result = $conn->query($queryString);
@@ -238,6 +261,7 @@
                                         <td><?= $row['upload_at'] ?></td>
                                         <td><?= $row['username'] ?></td>
                                         <td><?= $row['location'] ?></td>
+                                        <td><?= $row['project'] ?></td>
                                         <td><?= parseReportStatus($row['status']) ?></td>
                                         <td class="py-1 text-end">
                                             <div class="d-flex justify-content-end">
@@ -259,13 +283,16 @@
                     </div>
                 </div>
             </div>
+            </div>
+            
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane" id="tab-log-history">
                     <div class="card">
                         <div class="card-body">
                             <h2>Log</h2>
                             <hr>
-                            <table class="table table-hover" id="table-log">
+                            <div class="table-responsive">
+                                 <table class="table table-hover" id="table-log">
                                 <thead>
                                     <tr>
                                         <th>Tanggal</th>
@@ -298,10 +325,14 @@
                                 <?php } ?>
                                 </tbody>
                             </table>
+                            </div>
+                           
                         </div>
                     </div>
                 </div>
             </div>
+                            </div>
+                            
         </div>
     </section>
 </body>
@@ -325,6 +356,7 @@
 
         let tableReport = new DataTable('#table-report',  {
             columns: [
+                null,
                 null,
                 null,
                 null,
