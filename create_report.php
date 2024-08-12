@@ -114,11 +114,11 @@
             $competitor = isset($_POST['input-competitor'])? sanitizeInput($_POST['input-competitor']): '';
             $deadline = isset($_POST['input-due'])? sanitizeInput($_POST['input-due']): '';
             $sales_note = isset($_POST['input-sales-note'])? sanitizeInput($_POST['input-sales-note']): '';
-            $input_role_spv = isset($_POST['input-reports-to-lead-1'])? sanitizeInput($_POST['input-reports-to-lead-1']): '';
-            $input_role_manager = isset($_POST['input-reports-to-lead-2'])? sanitizeInput($_POST['input-reports-to-lead-2']): '';
-            $input_role_gmanager = isset($_POST['input-reports-to-lead-3'])? sanitizeInput($_POST['input-reports-to-lead-3']): '';
-            $input_role_director = isset($_POST['input-reports-to-lead-4'])? sanitizeInput($_POST['input-reports-to-lead-4']): '';
-            $input_role_director_2 = isset($_POST['input-reports-to-lead-5'])? sanitizeInput($_POST['input-reports-to-lead-5']): '';
+            $input_role_spv = isset($_POST['input-reports-to-lead-1']) ? sanitizeInput($_POST['input-reports-to-lead-1']) : null;
+            $input_role_manager = isset($_POST['input-reports-to-lead-2']) ? sanitizeInput($_POST['input-reports-to-lead-2']) : null;
+            $input_role_gmanager = isset($_POST['input-reports-to-lead-3']) ? sanitizeInput($_POST['input-reports-to-lead-3']) : null;
+            $input_role_director = isset($_POST['input-reports-to-lead-4']) ? sanitizeInput($_POST['input-reports-to-lead-4']) : null;
+            $input_role_director_2 = isset($_POST['input-reports-to-lead-5']) ? sanitizeInput($_POST['input-reports-to-lead-5']) : null;
 
             $insertOk = 1;
             $reason = [];
@@ -157,135 +157,599 @@
             }
             
             //jika hanya mengisi spv
-            if($input_role_spv != NULL){
-                $insertQueryString = "INSERT INTO report (upload_at, location, attachment, note, report_by, need_approval_by, longitude, latitude, project, city, visit_number, prospect, chance, competitor, deadline, sales_note) VALUES (".parseTimestampsToSQL().",'".$location."','".$attachment."', '".$note."', ".strval($_SESSION['ID']).", '".$input_role_spv."', '".$longitude."', '".$latitude."', '".$project."', '".$city."', ".$visit_number.", ".$prospect.", ".$chance.", '".$competitor."', STR_TO_DATE('".$deadline."', '%d/%m/%Y'), '".$sales_note."')";
+           if ($input_role_manager == NULL && $input_role_gmanager == NULL && $input_role_director == NULL && $input_role_director_2 == NULL) {
+
+                $insertQueryString = "INSERT INTO report (
+                    upload_at, location, attachment, note, report_by, 
+                    need_approval_by, longitude, latitude, project, city, 
+                    visit_number, prospect, chance, competitor, deadline, sales_note
+                ) VALUES (
+                    " . parseTimestampsToSQL() . ", 
+                    '" . $location . "', 
+                    '" . $attachment . "', 
+                    '" . $note . "', 
+                    " . strval($_SESSION['ID']) . ", 
+                    " . ($input_role_spv !== NULL ? $input_role_spv : "NULL") . ", 
+                    '" . $longitude . "', 
+                    '" . $latitude . "', 
+                    '" . $project . "', 
+                    '" . $city . "', 
+                    " . ($visit_number !== NULL ? $visit_number : "NULL") . ", 
+                    " . ($prospect !== NULL ? $prospect : "NULL") . ", 
+                    " . ($chance !== NULL ? $chance : "NULL") . ", 
+                    '" . $competitor . "', 
+                    " . ($deadline !== NULL ? "STR_TO_DATE('" . $deadline . "', '%d/%m/%Y')" : "NULL") . ", 
+                    '" . $sales_note . "'
+                )";
             }
+
             //jika hanya mengisi manager
-            else if($input_role_manager != NULL){
-                $insertQueryString = "INSERT INTO report (upload_at, location, attachment, note, report_by, need_approval_by_2, longitude, latitude, project, city, visit_number, prospect, chance, competitor, deadline, sales_note) VALUES (".parseTimestampsToSQL().",'".$location."','".$attachment."', '".$note."', ".strval($_SESSION['ID']).", '".$input_role_manager."', '".$longitude."', '".$latitude."', '".$project."', '".$city."', ".$visit_number.", ".$prospect.", ".$chance.", '".$competitor."', STR_TO_DATE('".$deadline."', '%d/%m/%Y'), '".$sales_note."')";
+            else if ($input_role_spv == NULL && $input_role_gmanager == NULL && $input_role_director == NULL && $input_role_director_2 == NULL) {
+
+                $insertQueryString = "INSERT INTO report (
+                    upload_at, location, attachment, note, report_by, 
+                    need_approval_by_2, longitude, latitude, project, city, 
+                    visit_number, prospect, chance, competitor, deadline, sales_note
+                ) VALUES (
+                    " . parseTimestampsToSQL() . ", 
+                    '" . $location . "', 
+                    '" . $attachment . "', 
+                    '" . $note . "', 
+                    " . strval($_SESSION['ID']) . ", 
+                    " . ($input_role_manager !== NULL ? $input_role_manager : "NULL") . ", 
+                    '" . $longitude . "', 
+                    '" . $latitude . "', 
+                    '" . $project . "', 
+                    '" . $city . "', 
+                    " . ($visit_number !== NULL ? $visit_number : "NULL") . ", 
+                    " . ($prospect !== NULL ? $prospect : "NULL") . ", 
+                    " . ($chance !== NULL ? $chance : "NULL") . ", 
+                    '" . $competitor . "', 
+                    " . ($deadline !== NULL ? "STR_TO_DATE('" . $deadline . "', '%d/%m/%Y')" : "NULL") . ", 
+                    '" . $sales_note . "'
+                )";
             }
+
             //jika hanya mengisi gmanager
-            else if($input_role_gmanager != NULL){
-                $insertQueryString = "INSERT INTO report (upload_at, location, attachment, note, report_by, need_approval_by_3, longitude, latitude, project, city, visit_number, prospect, chance, competitor, deadline, sales_note) VALUES (".parseTimestampsToSQL().",'".$location."','".$attachment."', '".$note."', ".strval($_SESSION['ID']).", '".$input_role_gmanager."', '".$longitude."', '".$latitude."', '".$project."', '".$city."', ".$visit_number.", ".$prospect.", ".$chance.", '".$competitor."', STR_TO_DATE('".$deadline."', '%d/%m/%Y'), '".$sales_note."')";
+            else if ($input_role_spv == NULL && $input_role_manager == NULL && $input_role_director == NULL && $input_role_director_2 == NULL) {
+
+                $insertQueryString = "INSERT INTO report (
+                    upload_at, location, attachment, note, report_by, 
+                    need_approval_by_3, longitude, latitude, project, city, 
+                    visit_number, prospect, chance, competitor, deadline, sales_note
+                ) VALUES (
+                    " . parseTimestampsToSQL() . ", 
+                    '" . $location . "', 
+                    '" . $attachment . "', 
+                    '" . $note . "', 
+                    " . strval($_SESSION['ID']) . ", 
+                    " . ($input_role_gmanager !== NULL ? $input_role_gmanager : "NULL") . ", 
+                    '" . $longitude . "', 
+                    '" . $latitude . "', 
+                    '" . $project . "', 
+                    '" . $city . "', 
+                    " . ($visit_number !== NULL ? $visit_number : "NULL") . ", 
+                    " . ($prospect !== NULL ? $prospect : "NULL") . ", 
+                    " . ($chance !== NULL ? $chance : "NULL") . ", 
+                    '" . $competitor . "', 
+                    " . ($deadline !== NULL ? "STR_TO_DATE('" . $deadline . "', '%d/%m/%Y')" : "NULL") . ", 
+                    '" . $sales_note . "'
+                )";
+                
+    
             }
+
             //jika hanya mengisi direktur 1
-            else if($input_role_director != NULL){
-                $insertQueryString = "INSERT INTO report (upload_at, location, attachment, note, report_by, need_approval_by_4, longitude, latitude, project, city, visit_number, prospect, chance, competitor, deadline, sales_note) VALUES (".parseTimestampsToSQL().",'".$location."','".$attachment."', '".$note."', ".strval($_SESSION['ID']).", '".$input_role_director."', '".$longitude."', '".$latitude."', '".$project."', '".$city."', ".$visit_number.", ".$prospect.", ".$chance.", '".$competitor."', STR_TO_DATE('".$deadline."', '%d/%m/%Y'), '".$sales_note."')";
+           else if ($input_role_spv == NULL && $input_role_manager == NULL && $input_role_gmanager == NULL && $input_role_director_2 == NULL) {
+
+                $insertQueryString = "INSERT INTO report (
+                    upload_at, location, attachment, note, report_by, 
+                    need_approval_by_4, longitude, latitude, project, city, 
+                    visit_number, prospect, chance, competitor, deadline, sales_note
+                ) VALUES (
+                    " . parseTimestampsToSQL() . ", 
+                    '" . $location . "', 
+                    '" . $attachment . "', 
+                    '" . $note . "', 
+                    " . strval($_SESSION['ID']) . ", 
+                    " . ($input_role_director !== NULL ? $input_role_director : "NULL") . ", 
+                    '" . $longitude . "', 
+                    '" . $latitude . "', 
+                    '" . $project . "', 
+                    '" . $city . "', 
+                    " . ($visit_number !== NULL ? $visit_number : "NULL") . ", 
+                    " . ($prospect !== NULL ? $prospect : "NULL") . ", 
+                    " . ($chance !== NULL ? $chance : "NULL") . ", 
+                    '" . $competitor . "', 
+                    " . ($deadline !== NULL ? "STR_TO_DATE('" . $deadline . "', '%d/%m/%Y')" : "NULL") . ", 
+                    '" . $sales_note . "'
+                )";
             }
+
             //jika hanya mengisi direktur 2
-            else if($input_role_director_2 != NULL){
-                $insertQueryString = "INSERT INTO report (upload_at, location, attachment, note, report_by, need_approval_by_5, longitude, latitude, project, city, visit_number, prospect, chance, competitor, deadline, sales_note) VALUES (".parseTimestampsToSQL().",'".$location."','".$attachment."', '".$note."', ".strval($_SESSION['ID']).", '".$input_role_director_2."', '".$longitude."', '".$latitude."', '".$project."', '".$city."', ".$visit_number.", ".$prospect.", ".$chance.", '".$competitor."', STR_TO_DATE('".$deadline."', '%d/%m/%Y'), '".$sales_note."')";
+            else if ($input_role_spv == NULL && $input_role_manager == NULL && $input_role_gmanager == NULL && $input_role_director == NULL) {
+
+                $insertQueryString = "INSERT INTO report (
+                    upload_at, location, attachment, note, report_by, 
+                    need_approval_by_5, longitude, latitude, project, city, 
+                    visit_number, prospect, chance, competitor, deadline, sales_note
+                ) VALUES (
+                    " . parseTimestampsToSQL() . ", 
+                    '" . $location . "', 
+                    '" . $attachment . "', 
+                    '" . $note . "', 
+                    " . strval($_SESSION['ID']) . ", 
+                    " . ($input_role_director_2 !== NULL ? $input_role_director_2 : "NULL") . ", 
+                    '" . $longitude . "', 
+                    '" . $latitude . "', 
+                    '" . $project . "', 
+                    '" . $city . "', 
+                    " . ($visit_number !== NULL ? $visit_number : "NULL") . ", 
+                    " . ($prospect !== NULL ? $prospect : "NULL") . ", 
+                    " . ($chance !== NULL ? $chance : "NULL") . ", 
+                    '" . $competitor . "', 
+                    " . ($deadline !== NULL ? "STR_TO_DATE('" . $deadline . "', '%d/%m/%Y')" : "NULL") . ", 
+                    '" . $sales_note . "'
+                )";
             }
-            //jika mengisi direktur 1 dan 2
-            else if($input_role_director != NULL && $input_role_director_2 != NULL){
-                $insertQueryString = "INSERT INTO report (upload_at, location, attachment, note, report_by, need_approval_by_4, need_approval_5, longitude, latitude, project, city, visit_number, prospect, chance, competitor, deadline, sales_note) VALUES (".parseTimestampsToSQL().",'".$location."','".$attachment."', '".$note."', ".strval($_SESSION['ID']).", '".$input_role_director."', '".$input_role_director_2."', '".$longitude."', '".$latitude."', '".$project."', '".$city."', ".$visit_number.", ".$prospect.", ".$chance.", '".$competitor."', STR_TO_DATE('".$deadline."', '%d/%m/%Y'), '".$sales_note."')";
+
+            //jika mengisi hanya direktur 1 dan 2
+            else if ($input_role_spv == NULL && $input_role_manager == NULL && $input_role_gmanager == NULL) {
+
+                $insertQueryString = "INSERT INTO report (
+                    upload_at, location, attachment, note, report_by, 
+                    need_approval_by_4, need_approval_by_5, longitude, latitude, 
+                    project, city, visit_number, prospect, chance, competitor, deadline, sales_note
+                ) VALUES (
+                    " . parseTimestampsToSQL() . ", 
+                    '" . $location . "', 
+                    '" . $attachment . "', 
+                    '" . $note . "', 
+                    " . strval($_SESSION['ID']) . ", 
+                    " . ($input_role_director !== NULL ? $input_role_director : "NULL") . ", 
+                    " . ($input_role_director_2 !== NULL ? $input_role_director_2 : "NULL") . ", 
+                    '" . $longitude . "', 
+                    '" . $latitude . "', 
+                    '" . $project . "', 
+                    '" . $city . "', 
+                    " . ($visit_number !== NULL ? $visit_number : "NULL") . ", 
+                    " . ($prospect !== NULL ? $prospect : "NULL") . ", 
+                    " . ($chance !== NULL ? $chance : "NULL") . ", 
+                    '" . $competitor . "', 
+                    " . ($deadline !== NULL ? "STR_TO_DATE('" . $deadline . "', '%d/%m/%Y')" : "NULL") . ", 
+                    '" . $sales_note . "'
+                )";
             }
-            //case sales barat gak punya spv, tapi ngisi manager, gmanager, direktur 1
-            else if($input_role_spv == NULL && $input_role_manager != NULL && $input_role_gmanager != NULL && $input_role_director != NULL){
+ 
+             //case sales timur ngisi spv, direktur 1 (akhirnya bisa)
+            else if ($input_role_spv != NULL && $input_role_manager == NULL && $input_role_gmanager == NULL && $input_role_director_2 == NULL) {
+
+                $insertQueryString = "INSERT INTO report (
+                    upload_at, location, attachment, note, report_by, 
+                    need_approval_by, need_approval_by_4, 
+                    longitude, latitude, project, city, visit_number, 
+                    prospect, chance, competitor, deadline, sales_note
+                ) VALUES (
+                    " . parseTimestampsToSQL() . ", 
+                    '" . $location . "', 
+                    '" . $attachment . "', 
+                    '" . $note . "', 
+                    " . strval($_SESSION['ID']) . ", 
+                    " . ($input_role_spv !== NULL ? $input_role_spv : "NULL") . ", 
+                    " . ($input_role_director !== NULL ? $input_role_director : "NULL") . ", 
+                    '" . $longitude . "', 
+                    '" . $latitude . "', 
+                    '" . $project . "', 
+                    '" . $city . "', 
+                    " . ($visit_number !== NULL ? $visit_number : "NULL") . ", 
+                    " . ($prospect !== NULL ? $prospect : "NULL") . ", 
+                    " . ($chance !== NULL ? $chance : "NULL") . ", 
+                    '" . $competitor . "', 
+                    " . ($deadline !== NULL ? "STR_TO_DATE('" . $deadline . "', '%d/%m/%Y')" : "NULL") . ", 
+                    '" . $sales_note . "'
+                )";
+            }
+
+            //case spv, dir 1, dir 2 (sip bisa jg)
+            else if ($input_role_spv != NULL && $input_role_manager == NULL && $input_role_gmanager == NULL) {
+
+                $insertQueryString = "INSERT INTO report (
+                    upload_at, location, attachment, note, report_by, 
+                    need_approval_by, need_approval_by_4, 
+                    longitude, latitude, project, city, visit_number, 
+                    prospect, chance, competitor, deadline, sales_note
+                ) VALUES (
+                    " . parseTimestampsToSQL() . ", 
+                    '" . $location . "', 
+                    '" . $attachment . "', 
+                    '" . $note . "', 
+                    " . strval($_SESSION['ID']) . ", 
+                    " . ($input_role_spv !== NULL ? $input_role_spv : "NULL") . ", 
+                    " . ($input_role_director !== NULL ? $input_role_director : "NULL") . ", 
+                    '" . $longitude . "', 
+                    '" . $latitude . "', 
+                    '" . $project . "', 
+                    '" . $city . "', 
+                    " . ($visit_number !== NULL ? $visit_number : "NULL") . ", 
+                    " . ($prospect !== NULL ? $prospect : "NULL") . ", 
+                    " . ($chance !== NULL ? $chance : "NULL") . ", 
+                    '" . $competitor . "', 
+                    " . ($deadline !== NULL ? "STR_TO_DATE('" . $deadline . "', '%d/%m/%Y')" : "NULL") . ", 
+                    '" . $sales_note . "'
+                )";
+            }
+
+             //case isi manager dan direktur 1 aja (bisa)
+            else if ($input_role_spv === NULL && $input_role_manager != NULL && $input_role_gmanager === NULL && $input_role_director_2 === NULL) {
+
+                 $insertQueryString = "INSERT INTO report (
+                    upload_at, location, attachment, note, report_by, 
+                    need_approval_by_2, need_approval_by_4, 
+                    longitude, latitude, project, city, visit_number, 
+                    prospect, chance, competitor, deadline, sales_note
+                ) VALUES (
+                    " . parseTimestampsToSQL() . ", 
+                    '" . $location . "', 
+                    '" . $attachment . "', 
+                    '" . $note . "', 
+                    " . strval($_SESSION['ID']) . ", 
+                    " . ($input_role_manager !== NULL ? $input_role_manager : "NULL") . ", 
+                    " . ($input_role_director !== NULL ? $input_role_director : "NULL") . ", 
+                    '" . $longitude . "', 
+                    '" . $latitude . "', 
+                    '" . $project . "', 
+                    '" . $city . "', 
+                    " . ($visit_number !== NULL ? $visit_number : "NULL") . ", 
+                    " . ($prospect !== NULL ? $prospect : "NULL") . ", 
+                    " . ($chance !== NULL ? $chance : "NULL") . ", 
+                    '" . $competitor . "', 
+                    " . ($deadline !== NULL ? "STR_TO_DATE('" . $deadline . "', '%d/%m/%Y')" : "NULL") . ", 
+                    '" . $sales_note . "'
+                )";
+            }
+
+            //case manager, direktur 1, dan direktur 2 aja
+            else if ($input_role_spv === NULL && $input_role_manager != NULL && $input_role_gmanager === NULL) {
+                $insertQueryString = "INSERT INTO report (
+                    upload_at, location, attachment, note, report_by, 
+                    need_approval_by_2, need_approval_by_4, need_approval_by_5, 
+                    longitude, latitude, project, city, visit_number, 
+                    prospect, chance, competitor, deadline, sales_note
+                ) VALUES (
+                    " . parseTimestampsToSQL() . ", 
+                    '" . $location . "', 
+                    '" . $attachment . "', 
+                    '" . $note . "', 
+                    " . strval($_SESSION['ID']) . ", 
+                    " . ($input_role_manager !== NULL ? $input_role_manager : "NULL") . ", 
+                    " . ($input_role_director !== NULL ? $input_role_director : "NULL") . ", 
+                    " . ($input_role_director_2 !== NULL ? $input_role_director_2 : "NULL") . ", 
+                    '" . $longitude . "', 
+                    '" . $latitude . "', 
+                    '" . $project . "', 
+                    '" . $city . "', 
+                    " . ($visit_number !== NULL ? $visit_number : "NULL") . ", 
+                    " . ($prospect !== NULL ? $prospect : "NULL") . ", 
+                    " . ($chance !== NULL ? $chance : "NULL") . ", 
+                    '" . $competitor . "', 
+                    " . ($deadline !== NULL ? "STR_TO_DATE('" . $deadline . "', '%d/%m/%Y')" : "NULL") . ", 
+                    '" . $sales_note . "'
+                )";
+            }
+
+              //case ngisi GM, Dir 1 (bisa)
+             else if ($input_role_spv == NULL && $input_role_manager == NULL && $input_role_director_2 == NULL) {
+
+                $insertQueryString = "INSERT INTO report (
+                    upload_at, location, attachment, note, report_by, 
+                    need_approval_by_3, need_approval_by_4, 
+                    longitude, latitude, project, city, visit_number, 
+                    prospect, chance, competitor, deadline, sales_note
+                ) VALUES (
+                    " . parseTimestampsToSQL() . ", 
+                    '" . $location . "', 
+                    '" . $attachment . "', 
+                    '" . $note . "', 
+                    " . strval($_SESSION['ID']) . ", 
+                    " . ($input_role_gmanager !== NULL ? $input_role_gmanager : "NULL") . ", 
+                    " . ($input_role_director !== NULL ? $input_role_director : "NULL") . ", 
+                    '" . $longitude . "', 
+                    '" . $latitude . "', 
+                    '" . $project . "', 
+                    '" . $city . "', 
+                    " . ($visit_number !== NULL ? $visit_number : "NULL") . ", 
+                    " . ($prospect !== NULL ? $prospect : "NULL") . ", 
+                    " . ($chance !== NULL ? $chance : "NULL") . ", 
+                    '" . $competitor . "', 
+                    " . ($deadline !== NULL ? "STR_TO_DATE('" . $deadline . "', '%d/%m/%Y')" : "NULL") . ", 
+                    '" . $sales_note . "'
+                )";
                 
-                $insertQueryString = "INSERT INTO report (upload_at, location, attachment, note, report_by, need_approval_by_2, need_approval_by_3, need_approval_by_4, longitude, latitude, project, city, visit_number, prospect, chance, competitor, deadline, sales_note) VALUES (".parseTimestampsToSQL().",'".$location."','".$attachment."', '".$note."', ".strval($_SESSION['ID']).", ".$input_role_manager.", ".$input_role_gmanager.", ".$input_role_director.",'".$longitude."', '".$latitude."', '".$project."', '".$city."', ".$visit_number.", ".$prospect.", ".$chance.", '".$competitor."', STR_TO_DATE('".$deadline."', '%d/%m/%Y'), '".$sales_note."')";
+
             }
-            //case sales barat gak punya spv, tp ngisi manager, gmanager, direktur 1, direktur 2
-            else if($input_role_spv == NULL && $input_role_manager != NULL && $input_role_gmanager != NULL && $input_role_director != NULL && $input_role_director_2 != NULL){
+
+            //GM, Dir 1, Dir 2 (bisa)
+            else if ($input_role_spv == NULL && $input_role_manager == NULL) {
+
+                $insertQueryString = "INSERT INTO report (
+                    upload_at, location, attachment, note, report_by, 
+                    need_approval_by_3, need_approval_by_4, need_approval_by_5,
+                    longitude, latitude, project, city, visit_number, 
+                    prospect, chance, competitor, deadline, sales_note
+                ) VALUES (
+                    " . parseTimestampsToSQL() . ", 
+                    '" . $location . "', 
+                    '" . $attachment . "', 
+                    '" . $note . "', 
+                    " . strval($_SESSION['ID']) . ", 
+                    " . ($input_role_gmanager !== NULL ? $input_role_gmanager : "NULL") . ", 
+                    " . ($input_role_director !== NULL ? $input_role_director : "NULL") . ", 
+                    " . ($input_role_director_2 !== NULL ? $input_role_director_2 : "NULL") . ",
+                    '" . $longitude . "', 
+                    '" . $latitude . "', 
+                    '" . $project . "', 
+                    '" . $city . "', 
+                    " . ($visit_number !== NULL ? $visit_number : "NULL") . ", 
+                    " . ($prospect !== NULL ? $prospect : "NULL") . ", 
+                    " . ($chance !== NULL ? $chance : "NULL") . ", 
+                    '" . $competitor . "', 
+                    " . ($deadline !== NULL ? "STR_TO_DATE('" . $deadline . "', '%d/%m/%Y')" : "NULL") . ", 
+                    '" . $sales_note . "'
+                )";
+
+            }
+
+            //case sales barat gak punya spv, tapi ngisi manager, gmanager, direktur 1 (sip dah bisa)
+            else if ($input_role_spv == NULL && $input_role_director_2 == NULL) {
+
+                $insertQueryString = "INSERT INTO report (
+                    upload_at, location, attachment, note, report_by, 
+                    need_approval_by_2, need_approval_by_3, need_approval_by_4, 
+                    longitude, latitude, project, city, visit_number, 
+                    prospect, chance, competitor, deadline, sales_note
+                ) VALUES (
+                    " . parseTimestampsToSQL() . ", 
+                    '" . $location . "', 
+                    '" . $attachment . "', 
+                    '" . $note . "', 
+                    " . strval($_SESSION['ID']) . ", 
+                    " . ($input_role_manager !== NULL ? $input_role_manager : "NULL") . ", 
+                    " . ($input_role_gmanager !== NULL ? $input_role_gmanager : "NULL") . ", 
+                    " . ($input_role_director !== NULL ? $input_role_director : "NULL") . ", 
+                    '" . $longitude . "', 
+                    '" . $latitude . "', 
+                    '" . $project . "', 
+                    '" . $city . "', 
+                    " . ($visit_number !== NULL ? $visit_number : "NULL") . ", 
+                    " . ($prospect !== NULL ? $prospect : "NULL") . ", 
+                    " . ($chance !== NULL ? $chance : "NULL") . ", 
+                    '" . $competitor . "', 
+                    " . ($deadline !== NULL ? "STR_TO_DATE('" . $deadline . "', '%d/%m/%Y')" : "NULL") . ", 
+                    '" . $sales_note . "'
+                )";
+            }
+
+            //case sales barat gak punya spv, tp ngisi manager, gmanager, direktur 1, direktur 2 (sip dah bisa juga)
+            else if ($input_role_spv == NULL) {
+
+                $insertQueryString = "INSERT INTO report (
+                    upload_at, location, attachment, note, report_by, 
+                    need_approval_by_2, need_approval_by_3, need_approval_by_4, need_approval_by_5, 
+                    longitude, latitude, project, city, visit_number, 
+                    prospect, chance, competitor, deadline, sales_note
+                ) VALUES (
+                    " . parseTimestampsToSQL() . ", 
+                    '" . $location . "', 
+                    '" . $attachment . "', 
+                    '" . $note . "', 
+                    " . strval($_SESSION['ID']) . ", 
+                    " . ($input_role_manager !== NULL ? $input_role_manager : "NULL") . ", 
+                    " . ($input_role_gmanager !== NULL ? $input_role_gmanager : "NULL") . ", 
+                    " . ($input_role_director !== NULL ? $input_role_director : "NULL") . ", 
+                    " . ($input_role_director_2 !== NULL ? $input_role_director_2 : "NULL") . ", 
+                    '" . $longitude . "', 
+                    '" . $latitude . "', 
+                    '" . $project . "', 
+                    '" . $city . "', 
+                    " . ($visit_number !== NULL ? $visit_number : "NULL") . ", 
+                    " . ($prospect !== NULL ? $prospect : "NULL") . ", 
+                    " . ($chance !== NULL ? $chance : "NULL") . ", 
+                    '" . $competitor . "', 
+                    " . ($deadline !== NULL ? "STR_TO_DATE('" . $deadline . "', '%d/%m/%Y')" : "NULL") . ", 
+                    '" . $sales_note . "'
+                )";
+
+            }
+
+             //case sales timur ngisi spv, gmanager, direktur 1 (dah bisa mantap)
+            else if ($input_role_manager == NULL && $input_role_director_2 == NULL) {
+
+                $insertQueryString = "INSERT INTO report (
+                    upload_at, location, attachment, note, report_by, 
+                    need_approval_by, need_approval_by_3, need_approval_by_4, 
+                    longitude, latitude, project, city, visit_number, 
+                    prospect, chance, competitor, deadline, sales_note
+                ) VALUES (
+                    " . parseTimestampsToSQL() . ", 
+                    '" . $location . "', 
+                    '" . $attachment . "', 
+                    '" . $note . "', 
+                    " . strval($_SESSION['ID']) . ", 
+                    " . ($input_role_spv !== NULL ? $input_role_spv : "NULL") . ", 
+                    " . ($input_role_gmanager !== NULL ? $input_role_gmanager : "NULL") . ", 
+                    " . ($input_role_director !== NULL ? $input_role_director : "NULL") . ", 
+                    '" . $longitude . "', 
+                    '" . $latitude . "', 
+                    '" . $project . "', 
+                    '" . $city . "', 
+                    " . ($visit_number !== NULL ? $visit_number : "NULL") . ", 
+                    " . ($prospect !== NULL ? $prospect : "NULL") . ", 
+                    " . ($chance !== NULL ? $chance : "NULL") . ", 
+                    '" . $competitor . "', 
+                    " . ($deadline !== NULL ? "STR_TO_DATE('" . $deadline . "', '%d/%m/%Y')" : "NULL") . ", 
+                    '" . $sales_note . "'
+                )";
+
+            }
+
+            //case sales timur ngisi spv, gmanager, direktur 1, direktur 2 (dah bisa mantap)
+            else if ($input_role_manager == NULL) {
+
+                $insertQueryString = "INSERT INTO report (
+                    upload_at, location, attachment, note, report_by, 
+                    need_approval_by, need_approval_by_3, need_approval_by_4, need_approval_by_5, 
+                    longitude, latitude, project, city, visit_number, 
+                    prospect, chance, competitor, deadline, sales_note
+                ) VALUES (
+                    " . parseTimestampsToSQL() . ", 
+                    '" . $location . "', 
+                    '" . $attachment . "', 
+                    '" . $note . "', 
+                    " . strval($_SESSION['ID']) . ", 
+                    " . ($input_role_spv !== NULL ? $input_role_spv : "NULL") . ", 
+                    " . ($input_role_gmanager !== NULL ? $input_role_gmanager : "NULL") . ", 
+                    " . ($input_role_director !== NULL ? $input_role_director : "NULL") . ", 
+                    " . ($input_role_director_2 !== NULL ? $input_role_director_2 : "NULL") . ", 
+                    '" . $longitude . "', 
+                    '" . $latitude . "', 
+                    '" . $project . "', 
+                    '" . $city . "', 
+                    " . ($visit_number !== NULL ? $visit_number : "NULL") . ", 
+                    " . ($prospect !== NULL ? $prospect : "NULL") . ", 
+                    " . ($chance !== NULL ? $chance : "NULL") . ", 
+                    '" . $competitor . "', 
+                    " . ($deadline !== NULL ? "STR_TO_DATE('" . $deadline . "', '%d/%m/%Y')" : "NULL") . ", 
+                    '" . $sales_note . "'
+                )";
+            }
+
+
+            //POKOKNY LOGIKA INI HARUS SETELAH SPV, GM, DIR 1
+            //case sales timur ngisi spv, manager, gmanager, direktur 1 (sipp dah bisa)
+            else if ($input_role_director_2 == NULL) {
+
+                $insertQueryString = "INSERT INTO report (
+                    upload_at, location, attachment, note, report_by, 
+                    need_approval_by, need_approval_by_2, need_approval_by_3, need_approval_by_4, 
+                    longitude, latitude, project, city, visit_number, 
+                    prospect, chance, competitor, deadline, sales_note
+                ) VALUES (
+                    " . parseTimestampsToSQL() . ", 
+                    '" . $location . "', 
+                    '" . $attachment . "', 
+                    '" . $note . "', 
+                    " . strval($_SESSION['ID']) . ", 
+                    " . ($input_role_spv !== NULL ? $input_role_spv : "NULL") . ", 
+                    " . ($input_role_manager !== NULL ? $input_role_manager : "NULL") . ", 
+                    " . ($input_role_gmanager !== NULL ? $input_role_gmanager : "NULL") . ", 
+                    " . ($input_role_director !== NULL ? $input_role_director : "NULL") . ", 
+                    '" . $longitude . "', 
+                    '" . $latitude . "', 
+                    '" . $project . "', 
+                    '" . $city . "', 
+                    " . ($visit_number !== NULL ? $visit_number : "NULL") . ", 
+                    " . ($prospect !== NULL ? $prospect : "NULL") . ", 
+                    " . ($chance !== NULL ? $chance : "NULL") . ", 
+                    '" . $competitor . "', 
+                    " . ($deadline !== NULL ? "STR_TO_DATE('" . $deadline . "', '%d/%m/%Y')" : "NULL") . ", 
+                    '" . $sales_note . "'
+                )";
+
                 
-                $insertQueryString = "INSERT INTO report (upload_at, location, attachment, note, report_by, need_approval_by_2, need_approval_by_3, need_approval_by_4, need_approval_by_5, longitude, latitude, project, city, visit_number, prospect, chance, competitor, deadline, sales_note) VALUES (".parseTimestampsToSQL().",'".$location."','".$attachment."', '".$note."', ".strval($_SESSION['ID']).", ".$input_role_manager.", ".$input_role_gmanager.", ".$input_role_director.", ".$input_role_director_2.",'".$longitude."', '".$latitude."', '".$project."', '".$city."', ".$visit_number.", ".$prospect.", ".$chance.", '".$competitor."', STR_TO_DATE('".$deadline."', '%d/%m/%Y'), '".$sales_note."')";
             }
-            //case sales timur ngisi spv, manager, gmanager, direktur 1
-            else if($input_role_spv != NULL && $input_role_manager != NULL && $input_role_gmanager != NULL && $input_role_director != NULL){
-                
-                $insertQueryString = "INSERT INTO report (upload_at, location, attachment, note, report_by, need_approval_by, need_approval_by_2, need_approval_by_3, need_approval_by_4, longitude, latitude, project, city, visit_number, prospect, chance, competitor, deadline, sales_note) VALUES (".parseTimestampsToSQL().",'".$location."','".$attachment."', '".$note."', ".strval($_SESSION['ID']).", ".$input_role_spv.", ".$input_role_manager.", ".$input_role_gmanager.", ".$input_role_director.",'".$longitude."', '".$latitude."', '".$project."', '".$city."', ".$visit_number.", ".$prospect.", ".$chance.", '".$competitor."', STR_TO_DATE('".$deadline."', '%d/%m/%Y'), '".$sales_note."')";
-            }
-            //case sales timur ngisi spv, manager, gmanager, direktur 1, direktur 2
-            else if($input_role_spv != NULL && $input_role_manager != NULL && $input_role_gmanager != NULL && $input_role_director != NULL && $input_role_director_2 != NULL){
-                
-                $insertQueryString = "INSERT INTO report (upload_at, location, attachment, note, report_by, need_approval_by, need_approval_by_2, need_approval_by_3, need_approval_by_4, need_approval_by_5, longitude, latitude, project, city, visit_number, prospect, chance, competitor, deadline, sales_note) VALUES (".parseTimestampsToSQL().",'".$location."','".$attachment."', '".$note."', ".strval($_SESSION['ID']).", ".$input_role_spv.", ".$input_role_manager.", ".$input_role_gmanager.", ".$input_role_director.", ".$input_role_director_2.",'".$longitude."', '".$latitude."', '".$project."', '".$city."', ".$visit_number.", ".$prospect.", ".$chance.", '".$competitor."', STR_TO_DATE('".$deadline."', '%d/%m/%Y'), '".$sales_note."')";
-            }
-              //case sales timur ngisi spv, gmanager, direktur 1
-            else if($input_role_spv != NULL && $input_role_manager == NULL && $input_role_gmanager != NULL && $input_role_director != NULL && $input_role_director_2 == NULL){
-                
-                $insertQueryString = "INSERT INTO report (upload_at, location, attachment, note, report_by, need_approval_by, need_approval_by_3, need_approval_by_4, longitude, latitude, project, city, visit_number, prospect, chance, competitor, deadline, sales_note) VALUES (".parseTimestampsToSQL().",'".$location."','".$attachment."', '".$note."', ".strval($_SESSION['ID']).", ".$input_role_spv.", ".$input_role_gmanager.", ".$input_role_director.", ".$longitude."', '".$latitude."', '".$project."', '".$city."', ".$visit_number.", ".$prospect.", ".$chance.", '".$competitor."', STR_TO_DATE('".$deadline."', '%d/%m/%Y'), '".$sales_note."')";
-            }
-             //case sales timur ngisi spv, gmanager, direktur 1, direktur 2
-            else if($input_role_spv != NULL && $input_role_manager == NULL && $input_role_gmanager != NULL && $input_role_director != NULL && $input_role_director_2 != NULL){
-                
-                $insertQueryString = "INSERT INTO report (upload_at, location, attachment, note, report_by, need_approval_by, need_approval_by_3, need_approval_by_4, need_approval_by_5, longitude, latitude, project, city, visit_number, prospect, chance, competitor, deadline, sales_note) VALUES (".parseTimestampsToSQL().",'".$location."','".$attachment."', '".$note."', ".strval($_SESSION['ID']).", ".$input_role_spv.", ".$input_role_gmanager.", ".$input_role_director.", ".$input_role_director_2.",'".$longitude."', '".$latitude."', '".$project."', '".$city."', ".$visit_number.", ".$prospect.", ".$chance.", '".$competitor."', STR_TO_DATE('".$deadline."', '%d/%m/%Y'), '".$sales_note."')";
-            }
-               //case sales timur ngisi spv, direktur 1
-            else if($input_role_spv != NULL && $input_role_manager == NULL && $input_role_gmanager == NULL && $input_role_director != NULL && $input_role_director_2 == NULL){
-                
-                $insertQueryString = "INSERT INTO report (upload_at, location, attachment, note, report_by, need_approval_by, need_approval_by_4, longitude, latitude, project, city, visit_number, prospect, chance, competitor, deadline, sales_note) VALUES (".parseTimestampsToSQL().",'".$location."','".$attachment."', '".$note."', ".strval($_SESSION['ID']).", ".$input_role_spv.", ".$input_role_director.", ".$longitude."', '".$latitude."', '".$project."', '".$city."', ".$visit_number.", ".$prospect.", ".$chance.", '".$competitor."', STR_TO_DATE('".$deadline."', '%d/%m/%Y'), '".$sales_note."')";
-            }
-                //case sales timur ngisi spv, direktur 1
-            else if($input_role_spv != NULL && $input_role_manager == NULL && $input_role_gmanager == NULL && $input_role_director != NULL && $input_role_director_2 != NULL){
-                
-                $insertQueryString = "INSERT INTO report (upload_at, location, attachment, note, report_by, need_approval_by, need_approval_by_4, need_approval_by_5, longitude, latitude, project, city, visit_number, prospect, chance, competitor, deadline, sales_note) VALUES (".parseTimestampsToSQL().",'".$location."','".$attachment."', '".$note."', ".strval($_SESSION['ID']).", ".$input_role_spv.", ".$input_role_director.", ".$input_role_director_2.", ".$longitude."', '".$latitude."', '".$project."', '".$city."', ".$visit_number.", ".$prospect.", ".$chance.", '".$competitor."', STR_TO_DATE('".$deadline."', '%d/%m/%Y'), '".$sales_note."')";
-            }
-            //case user role manager ngisi gmanager dan direktur 1
-            else if($input_role_manager == NULL && $input_role_spv == NULL){
-                
-                $insertQueryString = "INSERT INTO report (upload_at, location, attachment, note, report_by, need_approval_by_3, need_approval_by_4, longitude, latitude, project, city, visit_number, prospect, chance, competitor, deadline, sales_note) VALUES (".parseTimestampsToSQL().",'".$location."','".$attachment."', '".$note."', ".strval($_SESSION['ID']).", ".$input_role_manager.", ".$input_role_gmanager.",'".$longitude."', '".$latitude."', '".$project."', '".$city."', ".$visit_number.", ".$prospect.", ".$chance.", '".$competitor."', STR_TO_DATE('".$deadline."', '%d/%m/%Y'), '".$sales_note."')";
-            }
-            //case isi manager dan direktur 1 aja
-            else if($input_role_manager != NULL && $input_role_director != NULL){
-                
-                $insertQueryString = "INSERT INTO report (upload_at, location, attachment, note, report_by, need_approval_by_2, need_approval_by_4, longitude, latitude, project, city, visit_number, prospect, chance, competitor, deadline, sales_note) VALUES (".parseTimestampsToSQL().",'".$location."','".$attachment."', '".$note."', ".strval($_SESSION['ID']).", ".$input_role_manager.", ".$input_role_director.",'".$longitude."', '".$latitude."', '".$project."', '".$city."', ".$visit_number.", ".$prospect.", ".$chance.", '".$competitor."', STR_TO_DATE('".$deadline."', '%d/%m/%Y'), '".$sales_note."')";
-            }
-             //case isi manager dan direktur 1 dan 2 aja
-            else if($input_role_manager != NULL && $input_role_director != NULL && $input_role_director_2 != NULL){
-                
-                $insertQueryString = "INSERT INTO report (upload_at, location, attachment, note, report_by, need_approval_by_2, need_approval_by_4, need_approval_by_5, longitude, latitude, project, city, visit_number, prospect, chance, competitor, deadline, sales_note) VALUES (".parseTimestampsToSQL().",'".$location."','".$attachment."', '".$note."', ".strval($_SESSION['ID']).", ".$input_role_manager.", ".$input_role_director.", ".$input_role_director_2.",'".$longitude."', '".$latitude."', '".$project."', '".$city."', ".$visit_number.", ".$prospect.", ".$chance.", '".$competitor."', STR_TO_DATE('".$deadline."', '%d/%m/%Y'), '".$sales_note."')";
-            }
+
+
+
+
             //jika mengisi semua atasan
-            else{
-               $insertQueryString = "INSERT INTO report (upload_at, location, attachment, note, report_by, need_approval_by, need_approval_by_2, need_approval_by_3, need_approval_by_4, need_approval_5, longitude, latitude, project, city, visit_number, prospect, chance, competitor, deadline, sales_note) VALUES (".parseTimestampsToSQL().",'".$location."','".$attachment."', '".$note."', ".strval($_SESSION['ID']).", ".$input_role_spv.", ".$input_role_manager.", ".$input_role_gmanager.", ".$input_role_director.", ".$input_role_director_2.", '".$longitude."', '".$latitude."', '".$project."', '".$city."', ".$visit_number.", ".$prospect.", ".$chance.", '".$competitor."', STR_TO_DATE('".$deadline."', '%d/%m/%Y'), '".$sales_note."')";
-                
+            else {
+
+                $insertQueryString = "INSERT INTO report (
+                    upload_at, location, attachment, note, report_by, 
+                    need_approval_by, need_approval_by_2, need_approval_by_3, need_approval_by_4, need_approval_by_5, 
+                    longitude, latitude, project, city, visit_number, 
+                    prospect, chance, competitor, deadline, sales_note
+                ) VALUES (
+                    " . parseTimestampsToSQL() . ", 
+                    '" . $location . "', 
+                    '" . $attachment . "', 
+                    '" . $note . "', 
+                    " . strval($_SESSION['ID']) . ", 
+                    " . ($input_role_spv !== NULL ? $input_role_spv : "NULL") . ", 
+                    " . ($input_role_manager !== NULL ? $input_role_manager : "NULL") . ", 
+                    " . ($input_role_gmanager !== NULL ? $input_role_gmanager : "NULL") . ", 
+                    " . ($input_role_director !== NULL ? $input_role_director : "NULL") . ", 
+                    " . ($input_role_director_2 !== NULL ? $input_role_director_2 : "NULL") . ", 
+                    '" . $longitude . "', 
+                    '" . $latitude . "', 
+                    '" . $project . "', 
+                    '" . $city . "', 
+                    " . ($visit_number !== NULL ? $visit_number : "NULL") . ", 
+                    " . ($prospect !== NULL ? $prospect : "NULL") . ", 
+                    " . ($chance !== NULL ? $chance : "NULL") . ", 
+                    '" . $competitor . "', 
+                    " . ($deadline !== NULL ? "STR_TO_DATE('" . $deadline . "', '%d/%m/%Y')" : "NULL") . ", 
+                    '" . $sales_note . "'
+                )";
             }
+
             
                 
-            if($insertOk === 1){
-                if ($conn->query($insertQueryString) === TRUE){
-                    
+            // Check if insertion is OK
+            if ($insertOk === 1) {
+                // Execute the insert query once
+                $queryResult = $conn->query($insertQueryString);
+
+                // Check if the query execution was successful
+                if ($queryResult === TRUE) {
+                    // Successful insertion
                     setAlert("Sukses membuat laporan baru", "success");
                     createLog($_SESSION['ID'], "CREATE_REPORT", $conn);
-                    if($_SESSION['ROLE'] === "sales"){
-                        header("location: user_dashboard.php");
+
+                    // Redirect based on user role
+                    switch ($_SESSION['ROLE']) {
+                        case "sales":
+                            header("Location: user_dashboard.php");
+                            break;
+                        case "supervisor":
+                        case "manager":
+                        case "gmanager":
+                            header("Location: manager_dashboard.php");
+                            break;
+                        default:
+                            header("Location: error.php");
+                            break;
                     }
-                    else if($_SESSION['ROLE'] === "supervisor" || $_SESSION['ROLE'] === "manager" || $_SESSION['ROLE'] === "gmanager"){
-                        header("location: manager_dashboard.php");
-                    }
-                }
-                else if($conn->query($insertQueryString) === FALSE){
+                    exit();
+                } else {
+                    // Query execution failed
                     setAlert("Gagal membuat laporan baru", "danger");
-                    header("location: error.php");
+                    header("Location: error.php");
+                    exit();
                 }
-                else {
-                    
-                    setAlert("Data belum diisi secara lengkap!", "danger");
-                    header("location: logout.php");
-                }
-            }
-            else {
-                
-                if(count($reason) > 0){
+            } else {
+                // Handle cases where $insertOk is not 1
+                if (count($reason) > 0) {
                     setAlert($reason[0], "danger");
                 }
-                header("location: user_dashboard.php");
+                header("Location: user_dashboard.php");
+                exit();
             }
-        }
-        else {
-            header("location: error.php");
-        }
+
+            // Additional checks for session state and user permissions
+            if (checkSession()) {
+                setAlert("You are not allowed to create a report!", "danger");
+                header("Location: logout.php");
+                exit();
+            } elseif (checkSessionRole(["sales", "manager", "gmanager", "supervisor"])) {
+                setAlert("Your credentials have expired, please re-enter your credentials!", "danger");
+                header("Location: logout.php");
+                exit();
+            } else {
+                header("Location: error.php");
+                exit();
+            }
+        } 
     }
-    elseif (checkSession()){
-        // User is not allowed to create a report
-        setAlert("You are not allowed to create a report !", "danger");
-        header("location: logout.php");
-    }
-    elseif(checkSessionRole(["sales", "manager", "gmanager", "supervisor"])){
-        setAlert("Your credentials have expired, please re-enter your credentials !", "danger");
-        header("location: logout.php");
-    }
-    else {
-        header("location: error.php");
-    }
+    
 ?>
