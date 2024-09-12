@@ -17,6 +17,8 @@ if(checkSession() && checkSessionRole(["sales", "supervisor", "manager", "gmanag
     $sppd = isset($_POST['input-sppd'])? sanitizeInput($_POST['input-sppd']): '';
     $duration = isset($_POST['input-duration'])? sanitizeInput($_POST['input-duration']): '';
     $type = isset($_POST['input-type-activity'])? sanitizeInput($_POST['input-type-activity']): '';
+    $tanggal_spi = isset($_POST['input-tanggal-spi'])? sanitizeInput($_POST['input-tanggal-spi']): '';
+    $tanggal_kontrak = isset($_POST['input-tanggal-kontrak'])? sanitizeInput($_POST['input-tanggal-kontrak']): '';
     $input_role_spv = isset($_POST['input-reports-to-lead-1']) ? sanitizeInput($_POST['input-reports-to-lead-1']) : null;
     $input_role_manager = isset($_POST['input-reports-to-lead-2']) ? sanitizeInput($_POST['input-reports-to-lead-2']) : null;
     $input_role_gmanager = isset($_POST['input-reports-to-lead-3']) ? sanitizeInput($_POST['input-reports-to-lead-3']) : null;
@@ -75,20 +77,15 @@ if(checkSession() && checkSessionRole(["sales", "supervisor", "manager", "gmanag
             $project = $connDB->real_escape_string($projects[$i] ?? '');
             $tanggal_input = $tanggal_aktivitas[$i] ?? '';
 
-            // Convert the date to MySQL datetime format
-            $tanggal = DateTime::createFromFormat('Y-m-d H:i:s', $tanggal_input); // Change format according to your input
-            if ($tanggal !== false) {
-                $tanggal_mysql = $tanggal->format('Y-m-d H:i:s');
-            } else {
-                $tanggal_mysql = null; // Handle invalid date input
-            }
+            $tanggal_aktivitas = getdate(strtotime($tanggal_aktivitas));
+            $tanggal_aktivitas = $tanggal_aktivitas["mday"]."/".$tanggal_aktivitas["mon"]."/".$tanggal_aktivitas['year'];
 
-            // Debugging: Check if the date conversion worked
-            if ($tanggal_mysql === null) {
-                echo "Invalid date format for entry $i: '$tanggal_input'<br>";
-            } else {
-                echo "Date for entry $i: '$tanggal_mysql'<br>";
-            }
+            $tanggal_spi = getdate(strtotime($tanggal_spi));
+            $tanggal_spi = $tanggal_spi["mday"]."/".$tanggal_spi["mon"]."/".$tanggal_spi['year'];
+
+            $tanggal_kontrak = getdate(strtotime($tanggal_kontrak));
+            $tanggal_kontrak = $tanggal_kontrak["mday"]."/".$tanggal_kontrak["mon"]."/".$tanggal_kontrak['year'];
+            
             
             $lokasi = $connDB->real_escape_string($instansi[$i] ?? '');
             $kota_value = $connDB->real_escape_string($kota[$i] ?? '');
@@ -105,9 +102,9 @@ if(checkSession() && checkSessionRole(["sales", "supervisor", "manager", "gmanag
 
             // Insert data array into the database
             $sql = "INSERT INTO full_report (
-                project, tanggal_aktivitas, instansi, kota, kode_proyek, nama_proyek, target, progress, kegiatan, report_by, sppd, durasi, tipe_kegiatan, $columns_str
+                project, tanggal_aktivitas, tanggal_spi, tanggal_kontrak, instansi, kota, kode_proyek, nama_proyek, target, progress, kegiatan, report_by, sppd, durasi, tipe_kegiatan, $columns_str
             ) VALUES (
-                '$project', '$tanggal_mysql', '$lokasi', '$kota_value', '$kode', '$nama_proyek_value', '$target_value', '$progress_value', '$kegiatan_value', " . strval($_SESSION['ID']) . ", '$sppd', '$duration', '$type', $values_str
+                '$project', " . ($tanggal_aktivitas !== NULL ? "STR_TO_DATE('" . $tanggal_aktivitas . "', '%d/%m/%Y')" : "NULL") . ",  " . ($tanggal_spi !== NULL ? "STR_TO_DATE('" . $tanggal_spi . "', '%d/%m/%Y')" : "NULL") . ",  " . ($tanggal_kontrak !== NULL ? "STR_TO_DATE('" . $tanggal_kontrak . "', '%d/%m/%Y')" : "NULL") . ",'$lokasi', '$kota_value', '$kode', '$nama_proyek_value', '$target_value', '$progress_value', '$kegiatan_value', " . strval($_SESSION['ID']) . ", '$sppd', '$duration', '$type', $values_str
             )";
 
             if (!$connDB->query($sql)) {
