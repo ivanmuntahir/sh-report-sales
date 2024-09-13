@@ -11,9 +11,9 @@
     $uuuser = "SELECT * FROM user WHERE id ='".$_SESSION['ID']."'";
     $report = $connDB->query($uuuser);
     $user_login = mysqli_fetch_assoc($report);
-        $report_user = "SELECT * FROM user WHERE id='".$user_login['reports_to']."'";
-        $result_report = $connDB->query($report_user);
-        $reports_to = mysqli_fetch_assoc($result_report);
+        // $report_user = "SELECT * FROM user WHERE id='".$user_login['reports_to']."'";
+        // $result_report = $connDB->query($report_user);
+        // $reports_to = mysqli_fetch_assoc($result_report);
 
         $report_supervisor = "SELECT * FROM user WHERE role='supervisor'";
         $result_s = $connDB->query($report_supervisor);
@@ -141,9 +141,10 @@
                 <div class="card-header fw-bold h3">
                     Buat Itinenary
                 </div>
+                <form id="dynamic-form" method="POST" action="create_report_itinenary_array.php">
                 <div class="card-body">
                     <div class="row">
-                        <!-- <div class="col-sm-5 mb-3">
+                        <div class="col-sm-5 mb-3">
                         <label for="select-lapor-ke-role" class="form-label mb-0 fw-bold">Jabatan Atasan</label>
                             <select class="form-select" id="select-lapor-ke-role" disabled>
                                 <option value="supervisor" <?= $reports_to_spv['role'] == 'supervisor' ? 'selected' : ''; ?>>Supervisor</option>
@@ -166,7 +167,7 @@
                                 </select>
                     </div>
                     <div class="col-sm-6 mb-3">
-                                        <label for="select-lapor-ke" class="form-label mb-0 fw-bold">Nama</label>
+                                        <label for="select-lapor-ke" class="form-label mb-0 fw-bold">Nama Supervisor</label>
                                                 <select name="input-reports-to-lead-1" class="form-select" id="select-lapor-ke">
                                                     
                                                     <?php if($user['reports_to_lead_1'] == 0) { ?>
@@ -185,7 +186,7 @@
                                                         <option value="" hidden selected disabled>-</option>
                                                     <?php } ?>
                                                 </select>
-                                                <label for="2-select-lapor-ke" class="form-label mb-0 fw-bold">Nama</label>
+                                                <label for="2-select-lapor-ke" class="form-label mb-0 fw-bold">Nama Manager</label>
                                                 <select name="input-reports-to-lead-2" class="form-select" id="2-select-lapor-ke">
                                                     <?php if( $user['reports_to_lead_2'] == 0) { ?>
                                                         <option value="" hidden disabled>-</option>
@@ -202,7 +203,7 @@
                                                         <option value="" hidden selected disabled>-</option>
                                                     <?php } ?>
                                                 </select>
-                                                <label for="3-select-lapor-ke" class="form-label mb-0 fw-bold">Nama</label>
+                                                <label for="3-select-lapor-ke" class="form-label mb-0 fw-bold">Nama General Manager</label>
                                                 <select name="input-reports-to-lead-3" class="form-select" id="3-select-lapor-ke">
                                                     <?php if( $user['reports_to_lead_3'] == 0) { ?>
                                                         <option value="" hidden disabled>-</option>
@@ -219,7 +220,7 @@
                                                         <option value="" hidden selected disabled>-</option>
                                                     <?php } ?>
                                                 </select>
-                                                <label for="4-select-lapor-ke" class="form-label mb-0 fw-bold">Nama</label>
+                                                <label for="4-select-lapor-ke" class="form-label mb-0 fw-bold">Nama Direktur Bidang</label>
                                                 <select name="input-reports-to-lead-4" class="form-select" id="4-select-lapor-ke">
                                                     <?php if( $user['reports_to_lead_4'] == 0) { ?>
                                                         <option value="" hidden disabled>-</option>
@@ -236,7 +237,7 @@
                                                         <option value="" hidden selected disabled>-</option>
                                                     <?php } ?>
                                                 </select>
-                                                <label for="5-select-lapor-ke" class="form-label mb-0 fw-bold">Nama</label>
+                                                <label for="5-select-lapor-ke" class="form-label mb-0 fw-bold">Nama Direktur Pembimbing</label>
                                                 <select name="input-reports-to-lead-5" class="form-select" id="5-select-lapor-ke">
                                                     <?php if( $user['reports_to_lead_4'] == 0) { ?>
                                                         <option value="" hidden disabled>-</option>
@@ -253,29 +254,21 @@
                                                         <option value="" hidden selected disabled>-</option>
                                                     <?php } ?>
                                                 </select>
-                                    </div>
+                                    </div> 
                     </div>
+                    
                     <div class="col-12 mb-3">
                                         <label class="fw-bold">Pilih salah satu</label>
                                         <div class="row">
-                                            <div class="col-6 mb-2">
-                                                <div class="form-check">
-                                                    <input class="form-check-type-activity" type="checkbox" name="input-type-activity" id="input-check-type-activity-1">
-                                                    <label class="form-check-label" for="input-check-proyek-1">Dinas Luar Kota</label>
-                                                </div>
-                                            </div>
-                                            <div class="col-6 mb-2">
-                                                <div class="form-check">
-                                                    <input class="form-check-type-activity" type="checkbox" name="input-type-activity" id="input-check-type-activity-2">
-                                                    <label class="form-check-label" for="input-check-proyek-2">Kunjungan</label>
-                                                </div>
+                                            <div class="form-group">
+
+                                                <select name="input-type-activity" id="input-type-activity" class="form-select">
+                                                    <option value="Dinas Luar Kota">Dinas Luar Kota</option>
+                                                    <option value="Kunjungan">Kunjungan</option>
+                                                </select>
                                             </div>
                                         </div>
-                                        <?php if(isset($_SESSION['ERROR']['input-type-activity'])) { ?>
-                                            <div class="alert alert-danger mb-0 py-2 fade show" role="alert">
-                                                <?= $_SESSION['ERROR']['input-type-activity'] ?>
-                                            </div>
-                                        <?php } ?>
+                                    
                         </div>
                                     <div class="col-12 mb-3">
                                         <label for="input-sppd" class="form-label mb-0 fw-bold">No SPPD</label>
@@ -295,134 +288,8 @@
                                             </div>
                                             
                                         <?php } ?>
-                                    </div> -->
-                    <form id="dynamic-form" method="POST" action="create_report_itinenary.php">
-                        <div class="row">
-                            <div class="col">
-                                <label class="form-label mb-0 fw-bold h4 ">Aktivitas</label>
-                                <button onclick="add_more()" class="btn btn-dark btn-sm">Add More</button>
-                            </div>
-                        </div>
-                        <div class="col-12 mb-3">
-                                        <label class="fw-bold">Proyek</label>
-                                        <div class="row">
-                                            <div class="form-group">
-                                                <label for="dropdown">Choose an option:</label>
-                                                <select name="input-project[]" id="input-project" class="form-select">
-                                                <option value="Alkes Radiologi">Alkes Radiologi</option>
-                                                <option value="Alkes Non Radiologi">Alkes Non Radiologi</option>
-                                                <option value="IGM">IGM</option>
-                                                <option value="PTS">PTS</option>
-                                                <option value="MOT">MOT</option>
-                                                <option value="Oxycan">Oxycan</option>
-                                                <option value="Sippol - Personal Hygiene">
-                                                    Sippol - Personal Hygiene
-                                                </option>
-                                                <option value="BMHP-Drymist">BMHP-Drymist</option>
-                                                <option value="Food Chemical">Food Chemical</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    
-                        </div>
-                        
-                        <div id="product_row1" class="row">
-                            <!-- <input type="text" name="input-project[]" placeholder="Project" required /> -->
-                            <div class="col-12 mb-3">
-                                <label for="input-tanggal-aktivitas" class="form-label mb-0 fw-bold">Tanggal Aktivitas</label>
-                                <input type="date" class="form-control" id="input-tanggal-aktivitas" name="input-tanggal-aktivitas">
-                                <?php if(isset($_SESSION['ERROR']['input-tanggal-aktivitas'])) { ?>
-                                    <div class="alert alert-danger mb-0 py-2 fade show" role="alert">
-                                        <?= $_SESSION['ERROR']['input-tanggal-aktivitas'] ?>
-                                    </div>
-                                <?php } ?>
-                            </div>
-                            <div class="col-6 mb-3">
-                                <label for="input-kota" class="form-label mb-0 fw-bold">Kota Kunjungan</label>
-                                    <input type="text" class="form-control" id="input-kota${counter}" name="input-kota[]">
-                                    <?php if(isset($_SESSION['ERROR']['input-kota'])) { ?>
-                                        <div class="alert alert-danger mb-0 py-2 fade show" role="alert">
-                                            <?= $_SESSION['ERROR']['input-kota'] ?>
-                                        </div>
-                                    <?php } ?>
-                            </div>
-                            <div class="col-6 mb-3">
-                                <label for="input-instansi" class="form-label mb-0 fw-bold">Instansi</label>
-                                <input type="text" class="form-control" id="input-instansi" name="input-instansi[]" required>
-                                <?php if(isset($_SESSION['ERROR']['input-instansi'])) { ?>
-                                    <div class="alert alert-danger mb-0 py-2 fade show" role="alert">
-                                        <?= $_SESSION['ERROR']['input-instansi'] ?>
-                                    </div>
-                                <?php } ?>
-                            </div>
-                            <div class="col-6 mb-3">
-                                <label for="input-kode-proyek" class="form-label mb-0 fw-bold">Kode Proyek</label>
-                                <input type="text" class="form-control" id="input-kode-proyek" name="input-kode-proyek[]" required>
-                                <?php if(isset($_SESSION['ERROR']['input-kode-proyek'])) { ?>
-                                    <div class="alert alert-danger mb-0 py-2 fade show" role="alert">
-                                        <?= $_SESSION['ERROR']['input-kode-proyek'] ?>
-                                    </div>
-                                <?php } ?>
-                            </div>
-                            <div class="col-6 mb-3">
-                                <label for="input-nama-proyek" class="form-label mb-0 fw-bold">Nama Proyek</label>
-                                <input type="text" class="form-control" id="input-nama-proyek" name="input-nama-proyek[]" required>
-                                <?php if(isset($_SESSION['ERROR']['input-nama-proyek'])) { ?>
-                                    <div class="alert alert-danger mb-0 py-2 fade show" role="alert">
-                                        <?= $_SESSION['ERROR']['input-nama-proyek'] ?>
-                                    </div>
-                                <?php } ?>
-                            </div>
-                            <div class="col-6 mb-3">
-                                        <label for="input-progress" class="form-label mb-0 fw-bold">Progres Saat Ini</label>
-                                        <div class="form-control d-flex align-items-center justify-content-between">
-                                            <input type="number" class="input-number w-100" id="input-progress" name="input-progress[]" max="100" min="0">
-                                            <p class="mb-0">%</p>
-                                        </div>
-                                        <?php if(isset($_SESSION['ERROR']['input-progress'])) { ?>
-                                            <div class="alert alert-danger mb-0 py-2 fade show" role="alert">
-                                                <?= $_SESSION['ERROR']['input-progress'] ?>
-                                            </div>
-                                        <?php } ?>
-                            </div>
-                             <div class="col-6 mb-3">
-                                        <label for="input-target" class="form-label mb-0 fw-bold">Target</label>
-                                        <div class="form-control d-flex align-items-center justify-content-between">
-                                            <input type="number" class="input-number w-100" id="input-target" name="input-target[]" max="100" min="0">
-                                            <p class="mb-0"> %</p>
-                                        </div>
-                                        <?php if(isset($_SESSION['ERROR']['input-target'])) { ?>
-                                            <div class="alert alert-danger mb-0 py-2 fade show" role="alert">
-                                                <?= $_SESSION['ERROR']['input-target'] ?>
-                                            </div>
-                                        <?php } ?>
-                            </div>
-                            <div class="col-sm-12 mb-3">
-                                        <label for="input-kegiatan" class="form-label mb-0 fw-bold">Kegiatan</label>
-                                        <textarea name="input-kegiatan[]" class="form-control" id="input-kegiatan"></textarea>
-                                        <?php if(isset($_SESSION['ERROR']['input-kegiatan'])) { ?>
-                                            <div class="alert alert-danger mb-0 py-2 fade show" role="alert">
-                                                <?= $_SESSION['ERROR']['input-kegiatan'] ?>
-                                            </div>
-                                        <?php } ?>
-                            </div>
-                            <div class="col">
-                                <button onclick="delete_row('1')" type="button" class="btn btn-danger">Delete</button>
-                            </div>
-                        </div>
-                       
-                    
-                   
-                    <!-- <div class="col-12 mb-3">
-                                        <label for="input-spi" class="form-label mb-0 fw-bold">No SPI</label>
-                                        <input type="text" class="form-control" id="input-spi" name="input-spi">
-                                        <?php if(isset($_SESSION['ERROR']['input-spi'])) { ?>
-                                            <div class="alert alert-danger mb-0 py-2 fade show" role="alert">
-                                                <?= $_SESSION['ERROR']['input-spi'] ?>
-                                            </div>
-                                        <?php } ?>
-                                    </div>
-                                     <div class="col-12 mb-3">
+                                    </div> 
+                                    <div class="col-12 mb-3">
                                         <label for="input-tanggal-spi" class="form-label mb-0 fw-bold">Tanggal SPI</label>
                                         <input type="date" class="form-control" id="input-tanggal-spi" name="input-tanggal-spi">
                                         <?php if(isset($_SESSION['ERROR']['input-tanggal-spi'])) { ?>
@@ -440,18 +307,133 @@
                                             </div>
                                         <?php } ?>
                                     </div>
-                    </div> -->
+                                     <div class="col">
+                                        <label class="form-label mb-0 fw-bold h4 ">Aktivitas</label>
+                                        <button onclick="add_more()" class="btn btn-dark btn-sm">Add More</button>
+                                    </div>
                     
+                        <div class="card mt-2">
+                            <div class="card-body flex-grow-1">
+                                <div id="activity_row" class="row">
+                                    <!-- <input type="text" name="input-project[]" placeholder="Project" required /> -->
+                                    <div class="col-12 mb-3">
+                                                <label class="fw-bold">Proyek</label>
+                                                <div class="row">
+                                                    <div class="form-group">
+                                                        <label for="dropdown">Choose an option:</label>
+                                                        <select name="input-project[]" id="input-project" class="form-select">
+                                                        <option value="Alkes Radiologi">Alkes Radiologi</option>
+                                                        <option value="Alkes Non Radiologi">Alkes Non Radiologi</option>
+                                                        <option value="IGM">IGM</option>
+                                                        <option value="PTS">PTS</option>
+                                                        <option value="MOT">MOT</option>
+                                                        <option value="Oxycan">Oxycan</option>
+                                                        <option value="Sippol - Personal Hygiene">
+                                                            Sippol - Personal Hygiene
+                                                        </option>
+                                                        <option value="BMHP-Drymist">BMHP-Drymist</option>
+                                                        <option value="Food Chemical">Food Chemical</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <label for="input-tanggal-aktivitas" class="form-label mb-0 fw-bold">Tanggal Aktivitas</label>
+                                        <input type="date" class="form-control" id="input-tanggal-aktivitas" name="input-tanggal-aktivitas">
+                                        <?php if(isset($_SESSION['ERROR']['input-tanggal-aktivitas'])) { ?>
+                                            <div class="alert alert-danger mb-0 py-2 fade show" role="alert">
+                                                <?= $_SESSION['ERROR']['input-tanggal-aktivitas'] ?>
+                                            </div>
+                                        <?php } ?>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <label for="input-kota" class="form-label mb-0 fw-bold">Kota Kunjungan</label>
+                                            <input type="text" class="form-control" id="input-kota${counter}" name="input-kota[]">
+                                            <?php if(isset($_SESSION['ERROR']['input-kota'])) { ?>
+                                                <div class="alert alert-danger mb-0 py-2 fade show" role="alert">
+                                                    <?= $_SESSION['ERROR']['input-kota'] ?>
+                                                </div>
+                                            <?php } ?>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <label for="input-instansi" class="form-label mb-0 fw-bold">Instansi</label>
+                                        <input type="text" class="form-control" id="input-instansi" name="input-instansi[]" required>
+                                        <?php if(isset($_SESSION['ERROR']['input-instansi'])) { ?>
+                                            <div class="alert alert-danger mb-0 py-2 fade show" role="alert">
+                                                <?= $_SESSION['ERROR']['input-instansi'] ?>
+                                            </div>
+                                        <?php } ?>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <label for="input-kode-proyek" class="form-label mb-0 fw-bold">Kode Proyek</label>
+                                        <input type="text" class="form-control" id="input-kode-proyek" name="input-kode-proyek[]" required>
+                                        <?php if(isset($_SESSION['ERROR']['input-kode-proyek'])) { ?>
+                                            <div class="alert alert-danger mb-0 py-2 fade show" role="alert">
+                                                <?= $_SESSION['ERROR']['input-kode-proyek'] ?>
+                                            </div>
+                                        <?php } ?>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <label for="input-nama-proyek" class="form-label mb-0 fw-bold">Nama Proyek</label>
+                                        <input type="text" class="form-control" id="input-nama-proyek" name="input-nama-proyek[]" required>
+                                        <?php if(isset($_SESSION['ERROR']['input-nama-proyek'])) { ?>
+                                            <div class="alert alert-danger mb-0 py-2 fade show" role="alert">
+                                                <?= $_SESSION['ERROR']['input-nama-proyek'] ?>
+                                            </div>
+                                        <?php } ?>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                                <label for="input-progress" class="form-label mb-0 fw-bold">Progres Saat Ini</label>
+                                                <div class="form-control d-flex align-items-center justify-content-between">
+                                                    <input type="number" class="input-number w-100" id="input-progress" name="input-progress[]" max="100" min="0">
+                                                    <p class="mb-0">%</p>
+                                                </div>
+                                                <?php if(isset($_SESSION['ERROR']['input-progress'])) { ?>
+                                                    <div class="alert alert-danger mb-0 py-2 fade show" role="alert">
+                                                        <?= $_SESSION['ERROR']['input-progress'] ?>
+                                                    </div>
+                                                <?php } ?>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                                <label for="input-target" class="form-label mb-0 fw-bold">Target</label>
+                                                <div class="form-control d-flex align-items-center justify-content-between">
+                                                    <input type="number" class="input-number w-100" id="input-target" name="input-target[]" max="100" min="0">
+                                                    <p class="mb-0"> %</p>
+                                                </div>
+                                                <?php if(isset($_SESSION['ERROR']['input-target'])) { ?>
+                                                    <div class="alert alert-danger mb-0 py-2 fade show" role="alert">
+                                                        <?= $_SESSION['ERROR']['input-target'] ?>
+                                                    </div>
+                                                <?php } ?>
+                                    </div>
+                                    <div class="col-sm-12 mb-3">
+                                                <label for="input-kegiatan" class="form-label mb-0 fw-bold">Kegiatan</label>
+                                                <textarea name="input-kegiatan[]" class="form-control" id="input-kegiatan"></textarea>
+                                                <?php if(isset($_SESSION['ERROR']['input-kegiatan'])) { ?>
+                                                    <div class="alert alert-danger mb-0 py-2 fade show" role="alert">
+                                                        <?= $_SESSION['ERROR']['input-kegiatan'] ?>
+                                                    </div>
+                                                <?php } ?>
+                                    </div>
+                                    <div class="col">
+                                        <button onclick="delete_row('1')" type="button" class="btn btn-danger">Delete</button>
+                                    </div>
+                                </div>
+                            </div>  
+                            <div class="card-footer text-end">
+                                <button type="submit" class="btn btn-info" id="btn-save-report-itenenary">Submit</button>
+                            </div>
+                    </form>
+                </div>      
             </div>
-             <div class="card-footer text-end">
-                            <button type="submit" class="btn btn-info" id="btn-save-report-itenenary">Submit</button>
-                     </div>
-                </form>
         </div>
-
+    </div>
+    
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-            crossorigin="anonymous"></script>
+            crossorigin="anonymous">
+        </script>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     </body>
 </html>
@@ -517,9 +499,13 @@
     function add_more() {
     counter++
     activity++
-    var newDiv = `<div id="product_row${counter}" class="row">
-                    <label class="form-label mb-0 fw-bold h4 mt-2">Aktivitas ${activity}</label><br>
-                    <div class="col-12 mb-3">
+    var newDiv = `
+        <div class="container">
+            <div class="card mt-3">
+                <div class="card-body">
+                    <div id="activity_row${counter}" class="row">
+                        <label class="form-label mb-0 fw-bold h4 mt-2">Aktivitas ${activity}</label><br>
+                        <div class="col-12 mb-3">
                                         <label class="fw-bold">Proyek</label>
                                         <div class="row">
                                              <div class="form-group">
@@ -543,16 +529,16 @@
                                                 <?= $_SESSION['ERROR']['input-proyek'] ?>
                                             </div>
                                         <?php } ?>
-                                    </div>
-                    <div class="col-12 mb-3">
-                        <label for="input-tanggal-aktivitas" class="form-label mb-0 fw-bold">Tanggal Aktivitas</label>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="input-tanggal-aktivitas" class="form-label mb-0 fw-bold">Tanggal Aktivitas</label>
                             <input type="date" class="form-control" id="input-tanggal-aktivitas${counter}" name="input-tanggal-aktivitas[]">
                             <?php if(isset($_SESSION['ERROR']['input-tanggal-aktivitas'])) { ?>
                                 <div class="alert alert-danger mb-0 py-2 fade show" role="alert">
                                     <?= $_SESSION['ERROR']['input-tanggal-aktivitas'] ?>
                                 </div>
                             <?php } ?>
-                    </div>
+                        </div>
                     <div class="col-6 mb-3">
                         <label for="input-kota" class="form-label mb-0 fw-bold">Kota Kunjungan</label>
                             <input type="text" class="form-control" id="input-kota${counter}" name="input-kota[]">
@@ -626,8 +612,13 @@
                         <button onclick="add_more(), remove(this)" class="btn btn-dark">Add More</button>
                         <button onclick="delete_row('${counter}')" type="button" class="btn btn-danger">Delete</button>
                     </div>
-                </div>`
-    var form = document.getElementById('dynamic-form')
+                </div>
+            </div>
+        </div>
+    </div>
+            `
+                
+    var form = document.getElementById('activity_row')
     form.insertAdjacentHTML('beforeend', newDiv);
 }
 
@@ -638,7 +629,7 @@ function remove(el) {
 
 function delete_row(id) {
     activity--;
-    document.getElementById('product_row'+id).remove()
+    document.getElementById('activity_row'+id).remove()
 }
 
 
@@ -711,5 +702,7 @@ function delete_row(id) {
         //     $('#input-project').val(projects);
         //     // $('#form-create-report-itenenary').submit();
         // });
+       
+
 
 </script>
