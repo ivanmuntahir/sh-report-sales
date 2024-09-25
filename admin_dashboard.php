@@ -100,16 +100,16 @@
         }
     </style>
 </head>
-<body class="bg-main">
+<body class="bg-main position-relative">
     <?php if(isset($_SESSION['ALERT'])) { ?>
-        <div class="position-absolute end-0 " style="margin-top: 60px;">
+        <div class="position-absolute end-0 " style="margin-top: 10px;">
             <div class="alert alert-<?= $_SESSION['ALERT']['TYPE'] ?> mb-0 p-2 fade show" role="alert">
                 <?= $_SESSION['ALERT']['MESSAGE'] ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="width: 10px; height: 10px;"></button>
             </div>
         </div>
     <?php } unsetAlert(); ?>
-    <section id="section-header"> 
+    <section id="section-header">
         <nav class="navbar bg-light fixed-top shadow">
             <div class="container-fluid">
                 <h5 class="me-3 mb-0">Masuk sebagai, <?= $_SESSION['USERNAME'] ?> !</h5>
@@ -132,11 +132,12 @@
                             </form>
                         </li>
                     </ul>
-        
+                </div>
             </div>
             </div>
-        </div>
         </nav>
+    </section>
+    
     <section id="section-content">
         <div class="container">
 
@@ -212,7 +213,7 @@
                                                     <input type="password" class="form-control" id="input-confirmation-password">
                                                 </div>
                                             </div>
-                                            <div class="modal-footer text-end">
+                                            <div class="modal-footer text-end"> 
                                                 <input id="input-id" type="hidden" name="id">
                                                 <button type="submit" class="btn btn-primary">Submit</button>
                                             </div>
@@ -230,6 +231,9 @@
                     <div class="card">
                         <div class="card-body">
                             <h2>Master Laporan</h2>
+                             <form action="excel_export_admin.php" method="POST" name="export_file_type">
+                                            <button type="submit" class="btn btn-primary" name="export_excel_admin" value="xls">Export EXCEL</button>
+                                        </form>
                             <hr>
                             <table class="table table-hover" id="table-report">
                                 <thead>
@@ -331,8 +335,6 @@
                     </div>
                 </div>
             </div>
-                            </div>
-                            
         </div>
     </section>
 </body>
