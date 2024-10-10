@@ -1,13 +1,15 @@
 <?php 
     session_start();
     include "logged_user_check.php";
-    include_once "db_conn_itenenary.php";
+    include_once "db_conn_itinerary.php";
     include_once "utilities/util.php";
+    include_once "utilities/alert_handler.php";
 
     function updateReportAction($comment, $reportId, $connDB){
         $queryString = "UPDATE report_action SET comment = '".$comment." WHERE id='".$_SESSION['ID']."' AND report_id = '".$reportId."' ";
         $connDB->query($queryString);
     }
+
 
     if (isset($_GET['item_id'])){
         $queryString = "SELECT * FROM full_report WHERE ID=".$_GET['item_id']."";
@@ -39,7 +41,7 @@
         $canShowLocation = true;
     }
     elseif($_SESSION['ROLE'] == "admin"){
-        $backToPage = "admin_dashboard.php";
+        $backToPage = "admin_dashboard_itinerary.php";
         $canShowLocation = true;    
     }
 ?>
@@ -91,24 +93,29 @@
                 <button type="submit" class="btn btn-outline-primary"><i class="fa-solid fa-chevron-left"></i>&nbsp;Back</button>
             </form>
             <div class="d-flex flex-nowrap">
+                
                 <?php
                     if(($_SESSION['ROLE'] == "supervisor" || $_SESSION['ROLE'] == "manager" || $_SESSION['ROLE'] == "gmanager" || $_SESSION['ROLE'] == "director") 
                     && ($item['status'] >= 0 && $item['report_by'] != $_SESSION['ID'])) { 
                 ?>  
+                    <div>
                         <?php
-                           if($_SESSION['ROLE'] == "manager" && $item['status_estimasi_m'] == 1){ ?>
+                           if($_SESSION['ROLE'] == "manager" && $item['status_estimasi_m'] > 0){ ?>
                                 <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#modal-approve-report" disabled>Tanggapi</button>
                            <?php }  
-                           else if($_SESSION['ROLE'] == "gmanager" && $item['status_estimasi_gm'] == 2){ ?>
+                           else if($_SESSION['ROLE'] == "gmanager" && $item['status_estimasi_gm'] > 0){ ?>
                                 <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#modal-approve-report" disabled>Tanggapi</button>
                            <?php }
-                           else if($_SESSION['ROLE'] == "supervisor" && $item['status_estimasi_spv'] == 4){ ?>
+                           else if($_SESSION['ROLE'] == "supervisor" && $item['status_estimasi_spv'] > 0){ ?>
+                                <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#modal-approve-report" disabled>Tanggapi</button>
+                           <?php }
+                           else if($_SESSION['ROLE'] == "director" && $item['status_estimasi_dir'] > 0 || $item['status_estimasi_dir_2'] > 0){ ?>
                                 <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#modal-approve-report" disabled>Tanggapi</button>
                            <?php }
                            else { ?>
                                 <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#modal-approve-report">Tanggapi</button>
                             <?php } ?> 
-            </div>
+            
                         
                         <div class="modal fade" role="dialog" tabindex="-1" id="modal-approve-report">
                             <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down" role="document">
@@ -170,9 +177,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-                    </div>
                 <?php } ?>
                 <form class="ms-2" method="GET" action="logout.php">
                     <button type="submit" class="btn btn-danger">Logout</button>
@@ -223,11 +227,14 @@
                     } else {
                         echo "<div class='col-12'>";
                     }
+                    $query = "SELECT * FROM full_report WHERE id = ".$_GET['item_id']."";
+                    $result_q = $connDB->query($query);
+                    $res = mysqli_fetch_assoc($result_q);
                 ?>
                     <div class="card" id="report-card">
                         <div class="card-body">
                             <div class="d-flex align-items-center justify-content-between mb-0">
-                                <h2 class="mb-0">Detail Report <?= $_GET['item_id']; ?></h2>
+                                <h2 class="mb-0">Detail <?= $res['sppd']; ?></h2>
                                 <div class="d-flex">
                                     <div class="p-2"><a href="test_export.php?item_id=<?= $_GET['item_id']; ?>">
                                             <button type="button" class="btn btn-primary">Export PDF</button></a>
@@ -282,42 +289,62 @@
                                         case 'gmanager':
                                             $needApprovalColumn = 'need_approval_by_3';
                                             break;
+                                        case 'director':
+                                            $needApprovalColumn = 'need_approval_by_4';
+                                            break;
+                                        case 'admin':
+                                            $queryString = "
+                                                            SELECT * 
+                                                            FROM full_report
+                                                            WHERE upload_at = (
+                                                                SELECT upload_at
+                                                                FROM full_report
+                                                                WHERE id = ".$_GET['item_id']."
+                                                            )";
+                                        break;
                                         default:
                                             $needApprovalColumn = 'report_by';
                                             break;
                                     }
+                                    
 
                                     // If a specific role column is needed, build the query accordingly
-                                    if ($needApprovalColumn !== 'report_by') {
-                                        $queryString = "
-                                            SELECT * 
-                                            FROM full_report
-                                            WHERE upload_at = (
-                                                SELECT upload_at 
-                                                FROM full_report 
-                                                WHERE id = ?
-                                            )
-                                            AND $needApprovalColumn = ?";
-                                    } else {
-                                        // Default case when no specific approval column is needed
-                                        $queryString = "
-                                            SELECT * 
-                                            FROM full_report
-                                            WHERE upload_at = (
-                                                SELECT upload_at 
-                                                FROM full_report 
-                                                WHERE id = ?
-                                            )
-                                            AND report_by = ?";
+                                    if ($_SESSION['ROLE'] !== 'admin') {
+                                        if (!empty($needApprovalColumn) && $needApprovalColumn !== 'report_by') {
+                                            // Ensure the column name is valid before building the query
+                                            $queryString = "
+                                                SELECT * 
+                                                FROM full_report
+                                                WHERE upload_at = (
+                                                    SELECT upload_at 
+                                                    FROM full_report 
+                                                    WHERE id = ?
+                                                )
+                                                AND $needApprovalColumn = ?";
+                                        } else {
+                                            // Default case when no specific approval column is needed
+                                            $queryString = "
+                                                SELECT * 
+                                                FROM full_report
+                                                WHERE upload_at = (
+                                                    SELECT upload_at 
+                                                    FROM full_report 
+                                                    WHERE id = ?
+                                                )
+                                                AND report_by = ?";
+                                        }
                                     }
+
 
                                     // Prepare the query
                                     $stmt = $connDB->prepare($queryString);
 
                                     // Bind the parameters: report ID and session ID
-                                    $reportID = $_GET['item_id'] ?? $_SESSION['ID']; // If no GET parameter, fallback to SESSION ID
-                                    $sessionID = $_SESSION['ID'];
-                                    $stmt->bind_param("ii", $reportID, $sessionID);
+                                   if ($_SESSION['ROLE'] !== 'admin') {
+                                        $reportID = $_GET['item_id'] ?? $_SESSION['ID']; // If no GET parameter, fallback to SESSION ID
+                                        $sessionID = $_SESSION['ID'];
+                                        $stmt->bind_param("ii", $reportID, $sessionID);
+                                    }
 
                                     // Execute the query
                                     $stmt->execute();

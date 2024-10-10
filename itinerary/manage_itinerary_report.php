@@ -1,6 +1,6 @@
 <?php 
     session_start();
-    include_once "db_conn_itenenary.php";
+    include_once "db_conn_itinerary.php";
     include_once "utilities/util.php";
     include_once "utilities/alert_handler.php";
     include_once "logged_user_check.php";

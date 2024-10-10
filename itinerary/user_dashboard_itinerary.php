@@ -1,66 +1,66 @@
 <?php 
     session_start();
-    include_once "db_conn_itenenary.php";
+    include_once "db_conn_itinerary.php";
     include_once "utilities/util.php";
     include_once "utilities/alert_handler.php";
     include_once "logged_user_check.php";
 
-    $queryString = "SELECT * FROM user";
+    // $queryString = "SELECT * FROM user";
     
-    $result = $connDB->query($queryString);
-    $uuuser = "SELECT * FROM user WHERE id ='".$_SESSION['ID']."'";
-    $report = $connDB->query($uuuser);
-    $user_login = mysqli_fetch_assoc($report);
-        $report_user = "SELECT * FROM user WHERE id='".$user_login['reports_to']."'";
-        $result_report = $connDB->query($report_user);
-        $reports_to = mysqli_fetch_assoc($result_report);
+    // $result = $connDB->query($queryString);
+    // $uuuser = "SELECT * FROM user WHERE id ='".$_SESSION['ID']."'";
+    // $report = $connDB->query($uuuser);
+    // $user_login = mysqli_fetch_assoc($report);
+    //     $report_user = "SELECT * FROM user WHERE id='".$user_login['reports_to']."'";
+    //     $result_report = $connDB->query($report_user);
+    //     $reports_to = mysqli_fetch_assoc($result_report);
 
-        $report_supervisor = "SELECT * FROM user WHERE role='supervisor'";
-        $result_s = $connDB->query($report_supervisor);
-        $reports_to_spv = mysqli_fetch_assoc($result_s);
+    //     $report_supervisor = "SELECT * FROM user WHERE role='supervisor'";
+    //     $result_s = $connDB->query($report_supervisor);
+    //     $reports_to_spv = mysqli_fetch_assoc($result_s);
 
-        $report_manager = "SELECT * FROM user WHERE role='manager'";
-        $result_m = $connDB->query($report_manager);
-        $reports_to_manager = mysqli_fetch_assoc($result_m);
+    //     $report_manager = "SELECT * FROM user WHERE role='manager'";
+    //     $result_m = $connDB->query($report_manager);
+    //     $reports_to_manager = mysqli_fetch_assoc($result_m);
 
-        $report_gmanager = "SELECT * FROM user WHERE role='gmanager'";
-        $result_gm = $connDB->query($report_gmanager);
-        $reports_to_gmanager = mysqli_fetch_assoc($result_gm);
+    //     $report_gmanager = "SELECT * FROM user WHERE role='gmanager'";
+    //     $result_gm = $connDB->query($report_gmanager);
+    //     $reports_to_gmanager = mysqli_fetch_assoc($result_gm);
 
-        $report_director = "SELECT * FROM user WHERE role='director'";
-        $result_dr = $connDB->query($report_director);
-        $reports_to_director = mysqli_fetch_assoc($result_dr);
+    //     $report_director = "SELECT * FROM user WHERE role='director'";
+    //     $result_dr = $connDB->query($report_director);
+    //     $reports_to_director = mysqli_fetch_assoc($result_dr);
 
-        $report_director_2 = "SELECT * FROM user WHERE role='director'";
-        $result_dr_2 = $connDB->query($report_director_2);
-        $reports_to_director_2 = mysqli_fetch_assoc($result_dr_2);
+    //     $report_director_2 = "SELECT * FROM user WHERE role='director'";
+    //     $result_dr_2 = $connDB->query($report_director_2);
+    //     $reports_to_director_2 = mysqli_fetch_assoc($result_dr_2);
     
-        $statusQuery = "SELECT * FROM full_report";
-        $status = $connDB->query($statusQuery);
+    //     $statusQuery = "SELECT * FROM full_report";
+    //     $status = $connDB->query($statusQuery);
     
-    $users = [];
-    $spv = [];
-    $manager = [];
-    $gmanager = [];
-    $director = [];
-    $director_2 = [];
+    // $users = [];
+    // $spv = [];
+    // $manager = [];
+    // $gmanager = [];
+    // $director = [];
+    // $director_2 = [];
 
 
-    while($temp = mysqli_fetch_assoc($result_s)){
-        array_push($spv, $temp);
-    }   
-    while($temp = mysqli_fetch_assoc($result_m)){
-        array_push($manager, $temp);
-    }  
-    while($temp = mysqli_fetch_assoc($result_gm)){
-        array_push($gmanager, $temp);
-    } 
-    while($temp = mysqli_fetch_assoc($result_dr)){
-        array_push($director, $temp);
-    } 
-    while($temp = mysqli_fetch_assoc($result_dr_2)){
-        array_push($director_2, $temp);
-    } 
+    // while($temp = mysqli_fetch_assoc($result_s)){
+    //     array_push($spv, $temp);
+    // }   
+    // while($temp = mysqli_fetch_assoc($result_m)){
+    //     array_push($manager, $temp);
+    // }  
+    // while($temp = mysqli_fetch_assoc($result_gm)){
+    //     array_push($gmanager, $temp);
+    // } 
+    // while($temp = mysqli_fetch_assoc($result_dr)){
+    //     array_push($director, $temp);
+    // } 
+    // while($temp = mysqli_fetch_assoc($result_dr_2)){
+    //     array_push($director_2, $temp);
+    // } 
     
     
     
@@ -199,7 +199,7 @@
                 <li role="presentation" class="nav-item"><a role="tab" data-bs-toggle="tab" href="#tab-evaluated-report" class="nav-link">Realisasi</a></li>
             </ul>
         
-
+            
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane active" id="tab-unapproved-report">
                     <div class="card" style="border-top-left-radius: 0;">
@@ -212,6 +212,7 @@
                                 <thead>
                                     <tr>
                                         <th>ID Laporan</th>
+                                        <th>No SPPD</th>
                                         <th>Tanggal Upload</th>
                                         <th>Instansi</th>
                                         <th>Status</th>
@@ -221,11 +222,11 @@
                                 </thead>
                                 <tbody>
                                 <?php 
-                                    $queryString = "SELECT * FROM full_report WHERE report_by = '".$_SESSION['ID']."'";
-                                    // $queryString = "SELECT * 
-                                    //                 FROM full_report
-                                    //                 WHERE report_by =  " . $_SESSION['ID'] . "
-                                    //                 ORDER BY sppd";
+                                    //$queryString = "SELECT * FROM full_report WHERE report_by = '".$_SESSION['ID']."'";
+                                    $queryString = "SELECT * 
+                                                    FROM full_report
+                                                    WHERE report_by =  " . $_SESSION['ID'] . "
+                                                    GROUP BY sppd";
                                     
                                     $result = $connDB->query($queryString);
 
@@ -233,7 +234,8 @@
                                 ?>
                                     <tr>
                                         <td><?= $row['id'] ?></td>
-                                        <td><?= $row['upload_at'] ?></td>
+                                        <td><?= $row['sppd'] ?></td>
+                                        <td><?= date('d-M-Y', strtotime($row['upload_at'])) ?></td>
                                         <td><?= $row['instansi'] ?></td>
                                         <td><?= parseReportStatus($row['status']) ?></td>
                                         <td><?= parseJenisLaporan($row['jenis_laporan']) ?></td>
@@ -264,7 +266,7 @@
                                                 <?php } ?>
                                                 <form class="mb-0 ms-2" method="GET" action="manage_report_itinerary_realisasi.php">
                                                     <input type="hidden" name="item_id" value=<?=$row['id']?>>
-                                                    <?php if($_SESSION['ID'] != 165 || $row['status'] > 0) { 
+                                                    <?php if($_SESSION['ID'] != 165 || $row['status_estimasi_dir'] > 0 || $row['status_estimasi_dir_2'] > 0) { 
                                                        ?> <button class="btn btn-sm btn-outline-secondary" type="submit">Realisasi</button> 
                                                     <?php } else { ?>
                                                       <?php  ?> <button disabled class="btn btn-sm btn-outline-secondary" type="submit">Realisasi</button> 
@@ -394,6 +396,7 @@
     $(document).ready(function() {
         let tableUnapprovedReport = new DataTable('#table-unapproved-report',  {
             columns: [
+                null,
                 null,
                 null,
                 null,

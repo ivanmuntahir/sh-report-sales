@@ -1,7 +1,8 @@
 <?php 
     session_start();
     // include "logged_user_check.php";
-    include_once "db_conn_itenenary.php";
+    include_once "db_conn.php";
+    include_once "db_conn_itinerary.php";
     include_once "utilities/util.php";
     include_once "utilities/alert_handler.php";
     include_once "utilities/session_handler.php";
@@ -11,32 +12,32 @@
     $queryString = "SELECT * FROM user";
     
 
-    // $result = $connDB->query($queryString);
+    // $result = $conn->query($queryString);
     $uuuser = "SELECT * FROM user WHERE id ='".$_SESSION['ID']."'";
-    $report = $connDB->query($uuuser);
+    $report = $conn->query($uuuser);
     $user_login = mysqli_fetch_assoc($report);
         $report_user = "SELECT * FROM user WHERE id='".$user_login['reports_to']."'";
-        $result_report = $connDB->query($report_user);
+        $result_report = $conn->query($report_user);
         $reports_to = mysqli_fetch_assoc($result_report);
 
         $report_supervisor = "SELECT * FROM user WHERE role='supervisor'";
-        $result_s = $connDB->query($report_supervisor);
+        $result_s = $conn->query($report_supervisor);
         $reports_to_spv = mysqli_fetch_assoc($result_s);
 
         $report_manager = "SELECT * FROM user WHERE role='manager'";
-        $result_m = $connDB->query($report_manager);
+        $result_m = $conn->query($report_manager);
         $reports_to_manager = mysqli_fetch_assoc($result_m);
 
         $report_gmanager = "SELECT * FROM user WHERE role='gmanager'";
-        $result_gm = $connDB->query($report_gmanager);
+        $result_gm = $conn->query($report_gmanager);
         $reports_to_gmanager = mysqli_fetch_assoc($result_gm);
 
         $report_director = "SELECT * FROM user WHERE role='director'";
-        $result_dr = $connDB->query($report_director);
+        $result_dr = $conn->query($report_director);
         $reports_to_director = mysqli_fetch_assoc($result_dr);
 
         $report_director_2 = "SELECT * FROM user WHERE role='director'";
-        $result_dr_2 = $connDB->query($report_director_2);
+        $result_dr_2 = $conn->query($report_director_2);
         $reports_to_director_2 = mysqli_fetch_assoc($result_dr_2);
     
     
@@ -68,14 +69,14 @@
 
     if(isset($_GET['item_id'])){
         $queryString = "SELECT U.id as id, U.emp_id as emp_id, U.username as username, U.password as password, U.role as role, U.reports_to as reports_to, U.reports_to_lead_1 as reports_to_supervisor, U.reports_to_lead_2 as reports_to_manager, U.reports_to_lead_3 as reports_to_gmanager, U.reports_to_lead_4 as reports_to_director, REP.role as reports_to_role FROM user U, user REP WHERE U.ID=".$_GET['item_id']." AND U.REPORTS_TO = REP.id";
-        $result = $connDB->query($queryString);
+        $result = $conn->query($queryString);
             
             
         $user = mysqli_fetch_assoc($result);
         
         if ($user == null){
             $queryString = "SELECT * from user WHERE ID=".$_GET['item_id']."";
-            $result = $connDB->query($queryString);
+            $result = $conn->query($queryString);
             $user = mysqli_fetch_assoc($result);
         }
     }
@@ -181,15 +182,16 @@
                 <?php } ?>
                  
             </ul>
-
+                    
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane active" id="tab-unapproved-report">
                     <div class="card" style="border-top-left-radius: 0;">
                         <div class="card-body">
                             <h2>Aktivitas Laporan</h2>
-                            <form action="excel_itinerary.php?item_id=<? $_GET['item_id']; ?>" method="POST" name="export_file_type">
+                                <form action="excel_itinerary.php?item_id=<? $_GET['item_id']; ?>" method="POST" name="export_file_type">
                                             <button type="submit" class="btn btn-primary" name="export_excel_itinerary" value="xls">Export EXCEL</button>
-                                        </form>
+                                </form>
+                                
                             <hr>
                             <div class="table-responsive">
                                  <table class="table table-hover" id="table-unapproved-report">
@@ -212,21 +214,23 @@
 
                                     if ($_SESSION['ROLE'] === "manager"){
                                         $statusReport = 6;
-                                        $queryString = "SELECT r.id as 'id', r.sppd as 'sppd', r.instansi as 'instansi', r.upload_at as 'upload_at', u.emp_id as 'emp_id', r.status as 'status', u.username as 'username' FROM full_report r, user u WHERE r.report_by = u.id AND r.need_approval_by_2 = " . $_SESSION['ID'] . " AND r.status < " . $statusReport;
+                                        $queryString = "SELECT r.id as 'id', r.sppd as 'sppd', r.instansi as 'instansi', r.upload_at as 'upload_at', u.emp_id as 'emp_id', r.status as 'status', r.jenis_laporan as 'jenis_laporan', u.username as 'username' FROM full_report r, user u WHERE r.report_by = u.id AND r.need_approval_by_2 = " . $_SESSION['ID'] . " AND r.status < " . $statusReport . " GROUP BY r.sppd";
                                     }
                                     else if($_SESSION['ROLE'] === "gmanager"){
                                          $statusReport = 7;
-                                         $queryString = "SELECT r.id as 'id', r.sppd as 'sppd', r.instansi as 'instansi', r.upload_at as 'upload_at', u.emp_id as 'emp_id', r.status as 'status', r.jenis_laporan as 'jenis_laporan', u.username as 'username' FROM full_report r, user u WHERE  r.report_by = u.id AND r.need_approval_by_3 = " . $_SESSION['ID'] . " AND r.status < " . $statusReport . " AND r.jenis_laporan > 0" ;
+                                         $queryString = "SELECT r.id as 'id', r.sppd as 'sppd', r.instansi as 'instansi', r.upload_at as 'upload_at', u.emp_id as 'emp_id', r.status as 'status', r.jenis_laporan as 'jenis_laporan', u.username as 'username' FROM full_report r, user u WHERE  r.report_by = u.id AND r.need_approval_by_3 = " . $_SESSION['ID'] . " AND r.status < " . $statusReport . " AND r.jenis_laporan > 0  GROUP BY r.sppd" ;
                                     }
                                     else if($_SESSION['ROLE'] === "director"){
                                         $statusReport = 8;
                     
                                         $queryString = "SELECT 
                                                             r.id as 'id', 
+                                                            r.sppd as 'sppd',
                                                             r.upload_at as 'upload_at', 
                                                             r.instansi as 'instansi',
                                                             u.emp_id as 'emp_id', 
-                                                            r.status as 'status', 
+                                                            r.status as 'status',
+                                                            r.jenis_laporan as 'jenis_laporan', 
                                                             u.username as 'username'
                                                         FROM 
                                                             full_report r, 
@@ -235,16 +239,17 @@
                                                             r.report_by = u.id 
                                                             AND r.status < " . $statusReport . " 
                                                             AND (r.need_approval_by_4 = " . $_SESSION['ID'] . " 
-                                                            OR r.need_approval_by_5 = " . $_SESSION['ID'] . ")";
+                                                            OR r.need_approval_by_5 = " . $_SESSION['ID'] . ")
+                                                            GROUP BY sppd";
                                     }
                                     else if($_SESSION['ROLE'] === "supervisor"){
                                         $statusReport = 9;
-                                        $queryString = "SELECT r.id as 'id', r.instansi as 'instansi', r.upload_at as 'upload_at', u.emp_id as 'emp_id', r.status as 'status', u.username as 'username' FROM full_report r, user u WHERE r.report_by = u.id AND r.need_approval_by = " . $_SESSION['ID'] . " AND r.status < " . $statusReport;
+                                        $queryString = "SELECT r.id as 'id', r.sppd as 'sppd', r.instansi as 'instansi', r.upload_at as 'upload_at', u.emp_id as 'emp_id', r.status as 'status', r.jenis_laporan as 'jenis_laporan', u.username as 'username' FROM full_report r, user u WHERE r.report_by = u.id AND r.need_approval_by = " . $_SESSION['ID'] . " AND r.status < " . $statusReport;
                                     }
 
                                     try{
                                         $result = $connDB->query($queryString);
-                                       
+                                        // $res = $connDB->query($queryString);
                                     }
                                     catch(Exception $e){
                                         echo $e;
@@ -299,7 +304,7 @@
                                     $queryString = "SELECT r.id as id, r.attachment as attachment, r.note as note, r.location as location, r.upload_at as upload_at, r.report_by as report_by, ra.type as status, u.username as username FROM report r, report_action ra, user u where r.id = ra.report_id and u.id = r.report_by and ra.user = ".$_SESSION['ID']." ORDER BY ra.action_at DESC";
 
                                     try{
-                                        $result = $connDB->query($queryString);
+                                        $result = $conn->query($queryString);
                                     }
                                     catch(Exception $e){
                                         echo $e;
@@ -360,7 +365,7 @@
                                         <?php 
                                             $queryString = "SELECT * FROM report WHERE report_by = '".$_SESSION['ID']."' AND STATUS = 0";
                                             
-                                            $result = $connDB->query($queryString);
+                                            $result = $conn->query($queryString);
 
                                             while($row = mysqli_fetch_assoc($result)){
                                         ?>
@@ -412,7 +417,7 @@
                                     <?php 
                                         $queryString = "SELECT * FROM report WHERE report_by = '".$_SESSION['ID']."' AND STATUS <> 0";
                                         
-                                        $result = $connDB->query($queryString);
+                                        $result = $conn->query($queryString);
 
                                         while($row = mysqli_fetch_assoc($result)){
                                     ?>

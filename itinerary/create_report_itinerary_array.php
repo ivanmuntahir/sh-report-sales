@@ -1,7 +1,7 @@
 <?php
     session_start();
     // Database connection
-    include_once 'db_conn_itenenary.php'; // Adjust to your actual database connection file
+    include_once 'db_conn_itinerary.php'; // Adjust to your actual database connection file
     include_once "utilities/util.php";
     include_once "utilities/session_handler.php";
     include_once "utilities/alert_handler.php";
